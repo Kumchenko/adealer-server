@@ -1,9 +1,8 @@
-## ADealer Server
-
-# It's backend part of ADealer project
-
+# ADealer Server
+It's backend part of ADealer project.
 This project created with Node.js + Express
 
+## Get started
 First, run the development server:
 
 ```bash
