@@ -1,0 +1,96 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Order {
+  id        Int         @id @default(autoincrement())
+  serviceId Int
+  name      String
+  surname   String
+  tel       String
+  email     String
+  cost      Int
+  created   DateTime    @default(now())
+  Operation Operation[]
+  service   Service     @relation(fields: [serviceId], references: [id])
+
+  @@map("orders")
+}
+
+model Operation {
+  id         Int      @id @default(autoincrement())
+  dateTime   DateTime @default(now())
+  status     Status
+  orderId    Int
+  employeeId Int
+  employee   Employee @relation(fields: [employeeId], references: [id])
+  order      Order    @relation(fields: [orderId], references: [id])
+
+  @@unique([orderId, status])
+  @@map("operations")
+}
+
+model Service {
+  id          Int       @id @default(autoincrement())
+  modelId     String
+  componentId String
+  qualityId   String
+  cost        Int
+  orders      Order[]
+  component   Component @relation(fields: [componentId], references: [id])
+  model       Model     @relation(fields: [modelId], references: [id])
+  quality     Quality   @relation(fields: [qualityId], references: [id])
+
+  @@unique([modelId, componentId, qualityId])
+  @@map("services")
+}
+
+model Employee {
+  id         Int         @id @default(autoincrement())
+  login      String      @unique
+  password   String
+  operations Operation[]
+
+  @@map("employees")
+}
+
+model Model {
+  id       String    @id
+  services Service[]
+
+  @@map("models")
+}
+
+model Component {
+  id       String    @id
+  services Service[]
+
+  @@map("components")
+}
+
+model Quality {
+  id       String    @id
+  services Service[]
+
+  @@map("qualities")
+}
+
+model CallMe {
+  id      Int      @id @default(autoincrement())
+  name    String
+  tel     String
+  created DateTime @default(now())
+  checked Boolean  @default(false)
+
+  @@map("calls")
+}
+
+enum Status {
+  INPROCESS
+  DONE
+}
