@@ -9,5 +9,6 @@ const router = Router();
 router.use('/order', orderRouter)
 router.use('/component', componentRouter)
 router.use('/service', serviceRouter)
+router.use('/health', (req, res) => res.status(200))
 
 export default router;
