@@ -9,6 +9,6 @@ const router = Router();
 router.use('/order', orderRouter)
 router.use('/component', componentRouter)
 router.use('/service', serviceRouter)
-router.use('/health', (req, res) => res.status(200))
+router.use('/health', (req, res) => res.status(200).json({ status: 'OK' }))
 
 export default router;
