@@ -10,7 +10,7 @@
     "prisma-pre": "dotenv -e ./.env.preview prisma studio",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "npm install && prisma migrate deploy",
-    "start": "dotenv -e ./.env ts-node index.ts"
+    "start": "dotenv -e ./.env.preview ts-node index.ts"
   },
   "author": "Kyrylo Kumchenko <kirillkumchenko@gmail.com>",
   "license": "ISC",
