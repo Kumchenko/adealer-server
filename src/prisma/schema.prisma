@@ -8,16 +8,16 @@ datasource db {
 }
 
 model Order {
-  id        Int         @id @default(autoincrement())
-  serviceId Int
-  name      String
-  surname   String
-  tel       String
-  email     String
-  cost      Int
-  created   DateTime    @default(now())
-  Operation Operation[]
-  service   Service     @relation(fields: [serviceId], references: [id])
+  id         Int         @id @default(autoincrement())
+  serviceId  Int
+  name       String
+  surname    String
+  tel        String
+  email      String
+  cost       Int
+  created    DateTime    @default(now())
+  operations Operation[]
+  service    Service     @relation(fields: [serviceId], references: [id])
 
   @@map("orders")
 }

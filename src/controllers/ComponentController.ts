@@ -1,38 +1,34 @@
 import { NextFunction, Request, Response } from "express";
 import { prisma } from "../lib/prisma";
 import ApiError from "../errors/ApiError";
-import { IComponentsQuery } from "../interfaces";
-
-interface IComponentsRequest extends Request {
-    query: IComponentsQuery
-}
+import { IComponentsByModelRequest } from "../interfaces";
 
 class ComponentController {
-    async getMany(req: IComponentsRequest, res: Response, next: NextFunction) {
+    async getManyByModel(req: IComponentsByModelRequest, res: Response, next: NextFunction) {
         try {
-            const { model } = req.query;
+            const { modelId } = req.params;
 
-            if (!model) {
-                throw ApiError.badRequest('Provided model is undefined')
+            if (!modelId) {
+                throw ApiError.badRequest('Provided modelId is undefined')
             }
 
             const components = await prisma.component.findMany({
                 where: {
                     services: {
                         some: {
-                            modelId: model
+                            modelId
                         }
                     }
                 }
             })
 
-            const arrComponents = components.map(component => component.id);
+            const componentIds = components.map(component => component.id);
 
             if (components.length === 0) {
-                throw ApiError.internal('Not found components for this model')
+                throw ApiError.internal('Not found components for this modelId')
             }
 
-            res.json(arrComponents)
+            res.json(componentIds)
         }
         catch (e) {
             next(e)

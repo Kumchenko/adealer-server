@@ -1,16 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { prisma } from "../lib/prisma";
-import { IOrderBody, IOrderParams, IOrderQuery } from "../interfaces";
 import ApiError from "../errors/ApiError";
-import { Order, Service } from "@prisma/client";
-
-interface IOrderRequest extends Request {
-    params: IOrderParams
-    query: IOrderQuery
-    body: IOrderBody
-    order?: Order
-    service?: Service
-}
+import { IOrderRequest, IOrderCreateRequest, IOrderGetRequest } from "../interfaces";
 
 class OrderController {
     async check(req: IOrderRequest, res: Response, next: NextFunction) {
@@ -21,14 +12,22 @@ class OrderController {
                 throw ApiError.badRequest('Provided id is undefined')
             }
 
-            const order = await prisma.order.findUnique({
+            const foundOrder = await prisma.order.findUnique({
                 where: {
                     id: parseInt(id)
+                },
+                include: {
+                    operations: true,
+                    service: true
                 }
             })
 
-            if (order) {
-                req.order = order;
+            if (foundOrder) {
+                const { service: { id, cost, ...otherServiceData }, ...order } = foundOrder;
+                req.order = {
+                    ...order,
+                    ...otherServiceData
+                };
                 next();
             } else {
                 throw ApiError.badRequest('Order not found')
@@ -39,38 +38,51 @@ class OrderController {
         }
     }
 
-    async create(req: IOrderRequest, res: Response, next: NextFunction) {
+    async create(req: IOrderCreateRequest, res: Response, next: NextFunction) {
         try {
             const {
                 name,
                 surname,
                 tel,
-                email
+                email,
+                modelId,
+                qualityId,
+                componentId
             } = req.body;
 
-            if (!req.service) {
-                throw ApiError.internal('Received empty service data')
+            const service = await prisma.service.findUnique({
+                where: {
+                    modelId_componentId_qualityId: {
+                        modelId,
+                        qualityId,
+                        componentId
+                    }
+                }
+            })
+
+            if (!service) {
+                throw ApiError.internal('Service not found')
             }
 
             const createdOrder = await prisma.order.create({
                 data: {
-                    serviceId: req.service?.id,
+                    serviceId: service.id,
                     name,
                     surname,
                     tel,
                     email,
-                    cost: req.service?.cost
+                    cost: service.cost
                 }
             })
 
-            res.json(createdOrder)
+            res.json({ ...createdOrder, modelId, componentId, qualityId })
         }
         catch (e) {
             next(e);
         }
     }
 
-    async getWithCheck(req: IOrderRequest, res: Response, next: NextFunction) {
+    async get(req: IOrderGetRequest, res: Response, next: NextFunction) {
         try {
             const { tel } = req.query;
 
@@ -83,15 +95,6 @@ class OrderController {
             } else {
                 throw ApiError.badRequest('The given tel is wrong')
             }
-        }
-        catch (e) {
-            next(e);
-        }
-    }
-
-    async get(req: IOrderRequest, res: Response, next: NextFunction) {
-        try {
-            res.json(req.order)
         }
         catch (e) {
             next(e);

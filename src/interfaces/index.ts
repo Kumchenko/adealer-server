@@ -1,38 +1,45 @@
-export type IOrderQuery = {
-    tel?: string;
+import { Request } from "express"
+import { Order } from "@prisma/client"
+
+export interface IOrderRequest extends Request {
+    order?: Order
 }
 
-export type IOrderParams = {
-    id?: string;
+export interface IOrderGetRequest extends IOrderRequest {
+    query: {
+        tel?: string
+    }
 }
 
-export interface IOrderBody {
-    model: string;
-    name: string;
-    surname: string;
-    tel: string;
-    email: string;
-    component: string;
-    quality: string;
+export interface IOrderCreateRequest extends Request {
+    body: {
+        name: string,
+        surname: string,
+        tel: string,
+        email: string,
+        modelId: string,
+        componentId: string,
+        qualityId: string
+    }
 }
 
-export type IComponentsQuery = {
-    model?: string;
+export interface IComponentsByModelRequest extends Request {
+    params: {
+        modelId: string
+    }
 }
 
-export type IServicesQuery = {
-    model: string;
-    component: string;
+export interface ICallmeCreateRequest extends Request {
+    body: {
+        name: string;
+        tel: string;
+    }
 }
 
-export interface ICallQuery {
-    name: string;
-    tel: string;
-}
-
-export interface IServiceBody {
-    model: string;
-    component: string;
-    quality: string;
+export interface IServicesByModelComponentRequest extends Request {
+    query: {
+        modelId: string;
+        componentId: string;
+    }
 }
 

@@ -5,7 +5,12 @@
   "main": "index.ts",
   "scripts": {
     "dev": "dotenv -e ./.env nodemon index.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "pre": "dotenv -e ./.env.preview nodemon index.ts",
+    "prisma-dev": "dotenv -e ./.env prisma studio",
+    "prisma-pre": "dotenv -e ./.env.preview prisma studio",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npm install && prisma migrate deploy",
+    "start": "dotenv -e ./.env ts-node index.ts"
   },
   "author": "Kyrylo Kumchenko <kirillkumchenko@gmail.com>",
   "license": "ISC",
@@ -13,7 +18,7 @@
     "schema": "./src/prisma/schema.prisma"
   },
   "dependencies": {
-    "@prisma/client": "^4.16.1",
+    "@prisma/client": "^4.16.2",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "dotenv-cli": "^7.2.1",
@@ -24,7 +29,7 @@
     "@types/express": "^4.17.17",
     "@types/node": "^20.3.2",
     "nodemon": "^2.0.22",
-    "prisma": "^4.16.1",
+    "prisma": "^4.16.2",
     "ts-node": "^10.9.1",
     "typescript": "^5.1.3"
   }
