@@ -11,8 +11,11 @@ class CallmeController {
                 tel
             } = req.body;
 
-            if (!name || !tel) {
-                throw ApiError.internal('Name or tel is empty')
+            if (!tel || !name) {
+                throw ApiError.badRequest({
+                    i18n: 'empty-data',
+                    message: 'Provided tel or name is undefined'
+                })
             }
 
             const createdCall = await prisma.callMe.create({

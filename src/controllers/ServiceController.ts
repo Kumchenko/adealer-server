@@ -9,7 +9,10 @@ class ServiceController {
             const { modelId, componentId } = req.query;
 
             if (!modelId || !componentId) {
-                throw ApiError.badRequest('Provided modelId or componentId is undefined')
+                throw ApiError.badRequest({
+                    i18n: 'empty-data',
+                    message: 'Provided modelId or componentId is undefined'
+                })
             }
 
             const qualities = await prisma.service.findMany({

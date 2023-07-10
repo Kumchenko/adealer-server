@@ -17,7 +17,7 @@ app.use('/api', router)
 
 // Catch non-existent routes
 app.use('*', (req, res, next) => {
-    next(ApiError.forbidden('This path is not supported'))
+    next(ApiError.notSupported())
 })
 
 // Error middleware must be last

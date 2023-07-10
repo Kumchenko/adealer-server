@@ -9,7 +9,10 @@ class OrderController {
             const { id } = req.params;
 
             if (!id) {
-                throw ApiError.badRequest('Provided id is undefined')
+                throw ApiError.badRequest({
+                    i18n: 'id-is-undefined',
+                    message: 'Provided id is undefined'
+                })
             }
 
             const foundOrder = await prisma.order.findUnique({
@@ -30,7 +33,10 @@ class OrderController {
                 };
                 next();
             } else {
-                throw ApiError.badRequest('Order not found')
+                throw ApiError.badRequest({
+                    i18n: 'order-not-found',
+                    message: 'Order not found'
+                })
             }
         }
         catch (e) {
@@ -61,7 +67,10 @@ class OrderController {
             })
 
             if (!service) {
-                throw ApiError.internal('Service not found')
+                throw ApiError.badRequest({
+                    i18n: 'service-not-found',
+                    message: 'Service not found'
+                })
             }
 
             const createdOrder = await prisma.order.create({
@@ -87,13 +96,19 @@ class OrderController {
             const { tel } = req.query;
 
             if (!tel) {
-                throw ApiError.badRequest('Provided tel is undefined')
+                throw ApiError.badRequest({
+                    i18n: 'tel-is-undefined',
+                    message: 'Provided tel is undefined'
+                })
             }
 
             if (req.order?.tel === tel) {
                 res.json(req.order)
             } else {
-                throw ApiError.badRequest('The given tel is wrong')
+                throw ApiError.badRequest({
+                    i18n: 'tel-is-wrong',
+                    message: 'The given tel is wrong'
+                })
             }
         }
         catch (e) {
