@@ -12,7 +12,10 @@ class ModelController {
             });
 
             if (models.length === 0) {
-                throw ApiError.internal('Models not found')
+                throw ApiError.internal({
+                    i18n: 'models-not-found',
+                    message: 'Models not found'
+                })
             }
 
             res.json(models.map(model => model.id))
