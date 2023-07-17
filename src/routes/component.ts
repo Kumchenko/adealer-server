@@ -4,6 +4,6 @@ import ComponentController from "../controllers/ComponentController";
 const router = Router();
 
 // Handlers
-router.get('/:modelId', ComponentController.getManyByModel)
+router.get('/:modelId', ComponentController.getMany)
 
 export default router;
