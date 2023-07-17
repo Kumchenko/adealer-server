@@ -81,11 +81,11 @@ model Quality {
 }
 
 model CallMe {
-  id      Int      @id @default(autoincrement())
+  id      Int       @id @default(autoincrement())
   name    String
   tel     String
-  created DateTime @default(now())
-  checked Boolean  @default(false)
+  created DateTime  @default(now())
+  checked DateTime?
 
   @@map("calls")
 }

@@ -7,8 +7,10 @@ const router = Router();
 router.use('/:id', OrderController.check)
 
 // Handlers
-router.get('/:id', OrderController.get)
 router.post('/', OrderController.create)
+router.get('/:id', OrderController.get)
+router.patch('/:id', OrderController.update)
 router.delete('/:id', OrderController.delete)
+router.get('/', OrderController.getMany)
 
 export default router;

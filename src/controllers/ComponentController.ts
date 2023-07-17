@@ -1,10 +1,10 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Response } from "express";
 import { prisma } from "../lib/prisma";
 import ApiError from "../errors/ApiError";
-import { IComponentsByModelRequest } from "../interfaces";
+import { ComponentsGetRequest } from "../interfaces";
 
 class ComponentController {
-    async getManyByModel(req: IComponentsByModelRequest, res: Response, next: NextFunction) {
+    async getMany(req: ComponentsGetRequest, res: Response, next: NextFunction) {
         try {
             const { modelId } = req.params;
 
