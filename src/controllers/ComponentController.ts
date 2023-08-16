@@ -7,6 +7,14 @@ class ComponentController {
     async getMany(req: Request, res: Response, next: NextFunction) {
         try {
             const components = await prisma.component.findMany()
+
+            if (components.length === 0) {
+                throw ApiError.internal({
+                    i18n: 'components-not-found',
+                    message: `Components not found`,
+                })
+            }
+
             const componentIds = components.map(component => component.id)
             res.json(componentIds)
         } catch (e) {
@@ -34,6 +42,13 @@ class ComponentController {
                     },
                 },
             })
+
+            if (components.length === 0) {
+                throw ApiError.internal({
+                    i18n: 'components-not-found',
+                    message: `Components for this model not found`,
+                })
+            }
 
             const componentIds = components.map(component => component.id)
 

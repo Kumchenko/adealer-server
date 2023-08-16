@@ -1,4 +1,4 @@
-import { NextFunction, Response } from 'express'
+import { NextFunction } from 'express'
 import ApiError from '../errors/ApiError'
 import { AuthResponse, EmployeeData, RequestWithTokens } from '../interfaces'
 import { Jwt } from '../utils/Jwt'
@@ -9,11 +9,8 @@ export function authMiddleware(req: RequestWithTokens, res: AuthResponse, next: 
             next()
         }
 
-        // Getting token from cookie or from header
-        let token = req.cookies.access_token ? req.cookies.access_token : null
-        !token && req.headers.authorization?.startsWith('Bearer')
-            ? (token = req.headers.authorization?.split(' ')[1])
-            : null
+        // Getting token from cookie
+        let token = req.cookies.access_token
 
         // If not decoded or token undefined throw error
         const decoded = Jwt.verify<EmployeeData>(token)

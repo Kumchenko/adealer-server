@@ -4,18 +4,8 @@ import ApiError from '../errors/ApiError'
 import { EmployeeLoginRequest, EmployeeResponse, RequestWithTokens } from '../interfaces'
 import { Jwt } from '../utils'
 import { signToken } from '../services'
-import { accessTokenMaxAge, refreshTokenMaxAge } from '../configs'
+import { accessTokenCookieOptions, loggedInCookieOptions, refreshTokenCookieOptions } from '../configs'
 import { Employee } from '@prisma/client'
-
-const accessTokenCookieOptions: CookieOptions = {
-    maxAge: accessTokenMaxAge,
-    httpOnly: true,
-}
-
-const refreshTokenCookieOptions: CookieOptions = {
-    maxAge: refreshTokenMaxAge,
-    httpOnly: true,
-}
 
 class EmployeeController {
     async login(req: EmployeeLoginRequest, res: EmployeeResponse, next: NextFunction) {
@@ -75,7 +65,7 @@ class EmployeeController {
             // Attaching tokens to cookies
             res.cookie('access_token', accessToken, accessTokenCookieOptions)
             res.cookie('refresh_token', refreshToken, refreshTokenCookieOptions)
-            res.cookie('logged_in', true, { maxAge: refreshTokenMaxAge })
+            res.cookie('logged_in', true, loggedInCookieOptions)
 
             res.json(employee)
         } catch (e) {

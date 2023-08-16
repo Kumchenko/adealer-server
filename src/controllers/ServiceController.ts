@@ -10,7 +10,7 @@ class ServiceController {
                 where: req.query,
             })
 
-            if (!services) {
+            if (services.length === 0) {
                 throw ApiError.forbidden({
                     i18n: 'services-not-found',
                     message: 'Services not found',

@@ -343,12 +343,15 @@ class OrderController {
                 },
             })
 
-            const popularService = services.reduce((max, cur) => {
-                if (cur._count > max._count) {
-                    return cur
-                }
-                return max
-            })
+            const popularService =
+                services.length > 0
+                    ? services.reduce((max, cur) => {
+                          if (cur._count > max._count) {
+                              return cur
+                          }
+                          return max
+                      })
+                    : null
 
             const [all, created, processing, done] = await prisma.$transaction([
                 prisma.order.count(),
@@ -362,8 +365,8 @@ class OrderController {
                 created,
                 processing,
                 done,
-                model: popularService.modelId,
-                component: popularService.componentId,
+                model: popularService?.modelId || 'No services',
+                component: popularService?.componentId || 'No services',
             })
         } catch (e) {
             next(e)
