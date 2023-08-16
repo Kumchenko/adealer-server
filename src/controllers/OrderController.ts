@@ -1,70 +1,79 @@
-import { NextFunction, Response, Request } from "express";
-import { prisma } from "../lib/prisma";
-import ApiError from "../errors/ApiError";
-import { OrderCheckRequest, OrderCheckResponse, OrderCreateRequest, OrderDeleteRequest, OrderFilter, OrderGetRequest, OrderUpdateRequest, OrdersGetRequest, Sort } from "../interfaces";
-import { getOperations } from "../utils";
+import { NextFunction, Request, Response } from 'express'
+import { prisma } from '../lib/prisma'
+import ApiError from '../errors/ApiError'
+import {
+    OrderCheckRequest,
+    OrderCheckResponse,
+    OrderCreateRequest,
+    OrderDeleteRequest,
+    OrderFilter,
+    OrderGetRequest,
+    OrderSortBy,
+    OrderUpdateRequest,
+    OrdersGetRequest,
+    Sort,
+} from '../interfaces'
+import { getOrderFilter } from '../utils'
+import { Prisma, Status } from '@prisma/client'
 
 class OrderController {
     async check(req: OrderCheckRequest, res: OrderCheckResponse, next: NextFunction) {
         try {
-            const { id } = req.params;
+            const { id } = req.params
 
             if (!id) {
                 throw ApiError.badRequest({
                     i18n: 'id-is-undefined',
-                    message: 'Provided id is undefined'
+                    message: 'Provided id is undefined',
                 })
             }
 
             const order = await prisma.order.findUnique({
                 where: {
-                    id: parseInt(id)
+                    id: parseInt(id),
                 },
                 include: {
-                    operations: true,
-                    service: true
-                }
+                    operations: {
+                        include: {
+                            employee: true,
+                        },
+                    },
+                    service: true,
+                },
             })
 
             if (order) {
-                res.locals.order = order;
-                next();
+                res.locals.order = order
+                next()
             } else {
                 throw ApiError.badRequest({
                     i18n: 'order-not-found',
-                    message: 'Order not found'
+                    message: 'Order not found',
                 })
             }
-        }
-        catch (e) {
-            next(e);
+        } catch (e) {
+            next(e)
         }
     }
 
     async create(req: OrderCreateRequest, res: Response, next: NextFunction) {
         try {
-            const {
-                name,
-                surname,
-                tel,
-                email,
-                modelId,
-                componentId,
-                qualityId
-            } = req.body;
+            const { name, surname, tel, email, modelId, componentId, qualityId } = req.body
 
             const service = await prisma.service.findUnique({
                 where: {
                     modelId_componentId_qualityId: {
-                        modelId, componentId, qualityId
-                    }
-                }
+                        modelId,
+                        componentId,
+                        qualityId,
+                    },
+                },
             })
 
             if (!service) {
                 throw ApiError.badRequest({
                     i18n: 'service-not-found',
-                    message: 'Service not found'
+                    message: 'Service not found',
                 })
             }
 
@@ -75,25 +84,24 @@ class OrderController {
                     surname,
                     tel,
                     email,
-                    cost: service.cost
-                }
+                    cost: service.cost,
+                },
             })
 
             res.json({ ...order, service })
-        }
-        catch (e) {
-            next(e);
+        } catch (e) {
+            next(e)
         }
     }
 
-    async get(req: OrderGetRequest, res: OrderCheckResponse, next: NextFunction) {
+    async getWithoutAuth(req: OrderGetRequest, res: OrderCheckResponse, next: NextFunction) {
         try {
-            const { tel } = req.query;
+            const { tel } = req.query
 
             if (!tel) {
                 throw ApiError.badRequest({
                     i18n: 'tel-is-undefined',
-                    message: 'Provided tel is undefined'
+                    message: 'Provided tel is undefined',
                 })
             }
 
@@ -102,49 +110,63 @@ class OrderController {
             } else {
                 throw ApiError.badRequest({
                     i18n: 'tel-is-wrong',
-                    message: 'The given tel is wrong'
+                    message: 'The given tel is wrong',
                 })
             }
-        }
-        catch (e) {
-            next(e);
+        } catch (e) {
+            next(e)
         }
     }
 
-    async delete(req: OrderDeleteRequest, res: Response, next: NextFunction) {
+    async get(req: OrderGetRequest, res: OrderCheckResponse, next: NextFunction) {
         try {
+            res.json(res.locals.order)
+        } catch (e) {
+            next(e)
+        }
+    }
+
+    async delete(req: OrderDeleteRequest, res: OrderCheckResponse, next: NextFunction) {
+        try {
+            const { id } = res.locals.order
+            await prisma.operation.deleteMany({
+                where: {
+                    orderId: id,
+                },
+            })
             const deletedOrder = await prisma.order.delete({
                 where: {
-                    id: res.locals.order?.id
-                }
+                    id,
+                },
             })
             res.json(deletedOrder)
-        }
-        catch (e) {
+        } catch (e) {
             next(e)
         }
     }
 
     async update(req: OrderUpdateRequest, res: OrderCheckResponse, next: NextFunction) {
         try {
-            const { name, surname, tel, email, modelId, componentId, qualityId, cost, status } = req.body;
-            const { id } = res.locals.order;
-            const prevService = res.locals.order.service;
+            const { name, surname, tel, email, modelId, componentId, qualityId, cost, status } = req.body
+            const {
+                order: { service, ...order },
+                employee,
+            } = res.locals
 
-            const service = await prisma.service.findUnique({
+            const newService = await prisma.service.findUnique({
                 where: {
                     modelId_componentId_qualityId: {
-                        modelId: modelId || prevService.modelId,
-                        componentId: componentId || prevService.componentId,
-                        qualityId: qualityId || prevService.qualityId
-                    }
-                }
+                        modelId: modelId || service.modelId,
+                        componentId: componentId || service.componentId,
+                        qualityId: qualityId || service.qualityId,
+                    },
+                },
             })
 
-            if (!service) {
+            if (!newService) {
                 throw ApiError.badRequest({
                     i18n: 'service-not-found',
-                    message: 'Service not found'
+                    message: 'Service not found',
                 })
             }
 
@@ -152,33 +174,32 @@ class OrderController {
                 await prisma.operation.create({
                     data: {
                         status,
-                        orderId: id,
-                        employeeId: 1
-                    }
+                        orderId: order.id,
+                        employeeId: employee.id,
+                    },
                 })
             }
 
-            const order = await prisma.order.update({
+            const updatedOrder = await prisma.order.update({
                 where: {
-                    id
+                    id: order.id,
                 },
                 data: {
                     name,
                     surname,
                     tel,
                     email,
-                    serviceId: service.id,
-                    cost: cost || service.cost
+                    serviceId: newService.id,
+                    cost: cost || service.cost,
                 },
                 include: {
                     operations: true,
-                    service: true
-                }
+                    service: true,
+                },
             })
 
-            res.json(order)
-        }
-        catch (e) {
+            res.json(updatedOrder)
+        } catch (e) {
             next(e)
         }
     }
@@ -186,50 +207,165 @@ class OrderController {
     async getMany(req: OrdersGetRequest, res: Response, next: NextFunction) {
         try {
             const {
-                id, name, surname, tel, email,
-                modelId, componentId, qualityId,
-                operation, createdFrom, createdTo,
-                filter = OrderFilter.All, sort = Sort.Asc
-            } = req.query;
+                id,
+                name,
+                surname,
+                tel,
+                email,
+                modelId,
+                componentId,
+                qualityId,
+                page: pageString = '-1',
+                perPage: perPageString = '-1',
+                from,
+                to,
+                apply,
+                filter = OrderFilter.All,
+                sort = Sort.Asc,
+                sortBy = OrderSortBy.ID,
+            } = req.query
 
-            const orders = await prisma.order.findMany({
+            const page = parseInt(pageString)
+            const perPage = parseInt(perPageString)
+
+            const isPagination = page > 0 && perPage > 0
+
+            const fromDate = from ? new Date(from) : undefined
+            const toDate = to ? new Date(to) : undefined
+
+            const query: Prisma.OrderFindManyArgs = {
                 where: {
                     id: id ? parseInt(id) : undefined,
                     name: {
-                        contains: name
+                        contains: name,
                     },
                     surname: {
-                        contains: surname
+                        contains: surname,
                     },
                     tel: {
-                        contains: tel
+                        contains: tel,
                     },
                     email: {
-                        contains: email
+                        contains: email,
                     },
                     service: {
                         modelId,
                         componentId,
-                        qualityId
+                        qualityId,
                     },
                     created: {
-                        lte: createdTo,
-                        gte: createdFrom
+                        lte:
+                            !apply || filter === OrderFilter.All || filter === OrderFilter.Created ? toDate : undefined,
+                        gte:
+                            !apply || filter === OrderFilter.All || filter === OrderFilter.Created
+                                ? fromDate
+                                : undefined,
                     },
-                    operations: getOperations(filter, operation)
+                    operations: getOrderFilter(filter, apply, fromDate, toDate),
                 },
                 include: {
                     service: true,
-                    operations: true
+                    operations: {
+                        include: {
+                            employee: {
+                                select: {
+                                    id: true,
+                                    login: true,
+                                },
+                            },
+                        },
+                    },
                 },
                 orderBy: {
-                    id: sort
-                }
+                    [sortBy]: sort,
+                },
+                skip: isPagination ? (page - 1) * perPage : undefined,
+                take: isPagination ? perPage : undefined,
+            }
+
+            const [orders, count] = await prisma.$transaction([
+                prisma.order.findMany(query),
+                prisma.order.count({ where: query.where }),
+            ])
+
+            res.json({
+                pagination: {
+                    pages: isPagination ? Math.ceil(count / perPage) : 1,
+                    page: isPagination ? page : 1,
+                    total: count,
+                    perPage: isPagination ? perPage : count,
+                },
+                data: orders,
+            })
+        } catch (e) {
+            next(e)
+        }
+    }
+
+    async getStats(req: Request, res: Response, next: NextFunction) {
+        try {
+            const createdQuery: Prisma.OrderCountArgs = {
+                where: {
+                    operations: {
+                        none: {},
+                    },
+                },
+            }
+
+            const processQuery: Prisma.OrderCountArgs = {
+                where: {
+                    operations: {
+                        none: {
+                            status: Status.DONE,
+                        },
+                        some: {
+                            status: Status.INPROCESS,
+                        },
+                    },
+                },
+            }
+
+            const doneQuery: Prisma.OrderCountArgs = {
+                where: {
+                    operations: {
+                        some: {
+                            status: Status.DONE,
+                        },
+                    },
+                },
+            }
+
+            const services = await prisma.service.findMany({
+                include: {
+                    _count: {
+                        select: { orders: true },
+                    },
+                },
             })
 
-            res.json(orders)
-        }
-        catch (e) {
+            const popularService = services.reduce((max, cur) => {
+                if (cur._count > max._count) {
+                    return cur
+                }
+                return max
+            })
+
+            const [all, created, processing, done] = await prisma.$transaction([
+                prisma.order.count(),
+                prisma.order.count(createdQuery),
+                prisma.order.count(processQuery),
+                prisma.order.count(doneQuery),
+            ])
+
+            res.json({
+                all,
+                created,
+                processing,
+                done,
+                model: popularService.modelId,
+                component: popularService.componentId,
+            })
+        } catch (e) {
             next(e)
         }
     }

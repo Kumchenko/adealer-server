@@ -1,16 +1,21 @@
-import { Router } from "express";
-import OrderController from "../controllers/OrderController";
+import { Router } from 'express'
+import OrderController from '../controllers/OrderController'
 
-const router = Router();
+const router = Router()
+const authRouter = Router()
 
 // Middlewares
-router.use('/:id', OrderController.check)
+authRouter.use('/order/:id', OrderController.check)
 
-// Handlers
+// Non-auth Handlers
 router.post('/', OrderController.create)
-router.get('/:id', OrderController.get)
-router.patch('/:id', OrderController.update)
-router.delete('/:id', OrderController.delete)
-router.get('/', OrderController.getMany)
+router.get('/order/:id', OrderController.check, OrderController.getWithoutAuth)
 
-export default router;
+// Auth Handlers
+authRouter.get('/stats/', OrderController.getStats)
+authRouter.get('/order/:id', OrderController.get)
+authRouter.patch('/order/:id', OrderController.update)
+authRouter.delete('/order/:id', OrderController.delete)
+authRouter.get('/', OrderController.getMany)
+
+export { router as orderRouter, authRouter as orderAuthRouter }

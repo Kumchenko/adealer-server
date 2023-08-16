@@ -1,15 +1,18 @@
-import express from "express";
-import cors from "cors";
-import router from "./src/routes";
-import ErrorMiddleware from "./src/middlewares/ErrorMiddleware";
-import ApiError from "./src/errors/ApiError";
+import express from 'express'
+import cors from 'cors'
+import router from './src/routes'
+import cookieParser from 'cookie-parser'
+import ErrorMiddleware from './src/middlewares/ErrorMiddleware'
+import ApiError from './src/errors/ApiError'
+import { corsOptions } from './src/configs'
 
 const PORT = process.env.PORT || 5000
 
 const app = express()
 
 // Adding middlewares
-app.use(cors())
+app.use(cors(corsOptions))
+app.use(cookieParser())
 app.use(express.json())
 
 // Adding router
@@ -27,5 +30,5 @@ app.use(ErrorMiddleware)
 try {
     app.listen(PORT, () => console.log(`Server started on ${PORT}`))
 } catch {
-    console.log(`Error occured when server tried to start`)
+    console.error(`Error occured when server tried to start`)
 }

@@ -1,16 +1,20 @@
-import { Router } from "express";
-import CallmeController from "../controllers/CallmeController";
+import { Router } from 'express'
+import CallmeController from '../controllers/CallmeController'
 
-const router = Router();
+const router = Router()
+const authRouter = Router()
 
 // Middlewares
-router.use('/:id', CallmeController.check)
+authRouter.use('/callme/:id', CallmeController.check)
 
-// Handlers
+// Non-auth Handlers
 router.post('/', CallmeController.create)
-router.get('/:id', CallmeController.get)
-router.patch('/:id', CallmeController.update)
-router.delete('/:id', CallmeController.delete)
-router.get('/', CallmeController.getMany)
 
-export default router;
+// Auth Handlers
+authRouter.get('/stats/', CallmeController.getStats)
+authRouter.get('/callme/:id', CallmeController.get)
+authRouter.patch('/callme/:id', CallmeController.update)
+authRouter.delete('/callme/:id', CallmeController.delete)
+authRouter.get('/', CallmeController.getMany)
+
+export { router as callmeRouter, authRouter as callmeAuthRouter }
