@@ -1,14 +1,16 @@
-import { NextFunction, Request, Response } from "express";
-import ApiError from "../errors/ApiError";
+import { NextFunction, Request, Response } from 'express'
+import ApiError from '../errors/ApiError'
+import { isDev } from '../constants'
 
 export default function (err: Error, req: Request, res: Response, next: NextFunction) {
-    if (err instanceof ApiError) {
-        return res.status(err.status).json({ 
-            name: err.name,
-            i18n: err.i18n, 
-            message: err.message, 
-            stack: err.stack 
-        })
-    }
-    return res.status(500).json({ name: "Error", i18n: "not-found", message: "General Error" })
+    const isApiError = err instanceof ApiError
+
+    isDev ? console.error(`${err.message} ${new Date().toLocaleString()}`) : null
+
+    return res.status(isApiError ? err.status : 500).json({
+        name: err.name,
+        i18n: isApiError ? err.i18n : 'occured',
+        message: err.message,
+        stack: isDev ? err.stack : undefined,
+    })
 }

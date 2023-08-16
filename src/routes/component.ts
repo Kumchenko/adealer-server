@@ -1,9 +1,10 @@
-import { Router } from "express";
-import ComponentController from "../controllers/ComponentController";
+import { Router } from 'express'
+import ComponentController from '../controllers/ComponentController'
 
-const router = Router();
+const router = Router()
 
 // Handlers
-router.get('/:modelId', ComponentController.getMany)
+router.get('/', ComponentController.getMany)
+router.get('/:modelId', ComponentController.getManyByModel)
 
-export default router;
+export default router

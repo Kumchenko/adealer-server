@@ -1,18 +1,32 @@
-import { Router } from "express";
-import modelRouter from "./model";
-import orderRouter from "./order";
-import componentRouter from "./component";
-import serviceRouter from "./service";
-import callmeRouter from "./callme";
+import { Router } from 'express'
+import { orderRouter, orderAuthRouter } from './order'
+import { callmeRouter, callmeAuthRouter } from './callme'
+import modelRouter from './model'
+import componentRouter from './component'
+import serviceRouter from './service'
+import qualityRouter from './quality'
+import { employeeRouter, employeeAuthRouter } from './employee'
+import { authMiddleware } from '../middlewares/AuthMiddleware'
 
-const router = Router();
+const router = Router()
+const authRouter = Router()
 
-// Keeping routers together
+// Keeping non-auth routers together
 router.use('/model', modelRouter)
-router.use('/order', orderRouter)
 router.use('/component', componentRouter)
+router.use('/quality', qualityRouter)
 router.use('/service', serviceRouter)
-router.use('/callme', callmeRouter)
+router.use('/orders', orderRouter)
+router.use('/callmes', callmeRouter)
+router.use('/employee', employeeRouter)
 router.use('/health', (req, res) => res.status(200).json({ message: 'OK' }))
 
-export default router;
+// Keeping routers with auth together
+authRouter.use('/orders', orderAuthRouter)
+authRouter.use('/callmes', callmeAuthRouter)
+authRouter.use('/employee', employeeAuthRouter)
+
+// Keeping non-auth and auth routers together
+const globalRouter = Router().use('/', router).use('/auth', authMiddleware, authRouter)
+
+export default globalRouter

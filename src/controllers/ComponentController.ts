@@ -1,17 +1,27 @@
-import { NextFunction, Response } from "express";
-import { prisma } from "../lib/prisma";
-import ApiError from "../errors/ApiError";
-import { ComponentsGetRequest } from "../interfaces";
+import { NextFunction, Request, Response } from 'express'
+import { prisma } from '../lib/prisma'
+import ApiError from '../errors/ApiError'
+import { ComponentsGetRequest } from '../interfaces'
 
 class ComponentController {
-    async getMany(req: ComponentsGetRequest, res: Response, next: NextFunction) {
+    async getMany(req: Request, res: Response, next: NextFunction) {
         try {
-            const { modelId } = req.params;
+            const components = await prisma.component.findMany()
+            const componentIds = components.map(component => component.id)
+            res.json(componentIds)
+        } catch (e) {
+            next(e)
+        }
+    }
+
+    async getManyByModel(req: ComponentsGetRequest, res: Response, next: NextFunction) {
+        try {
+            const { modelId } = req.params
 
             if (!modelId) {
                 throw ApiError.badRequest({
                     i18n: 'model-id-is-undefined',
-                    message: 'Provided modelId is undefined'
+                    message: 'Provided modelId is undefined',
                 })
             }
 
@@ -19,24 +29,16 @@ class ComponentController {
                 where: {
                     services: {
                         some: {
-                            modelId
-                        }
-                    }
-                }
+                            modelId,
+                        },
+                    },
+                },
             })
 
-            const componentIds = components.map(component => component.id);
-
-            if (components.length === 0) {
-                throw ApiError.internal({
-                    i18n: 'components-not-found',
-                    message: 'Not found components for this modelId'
-                })
-            }
+            const componentIds = components.map(component => component.id)
 
             res.json(componentIds)
-        }
-        catch (e) {
+        } catch (e) {
             next(e)
         }
     }

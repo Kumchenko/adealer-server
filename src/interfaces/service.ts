@@ -1,5 +1,5 @@
-import { Service } from "@prisma/client";
-import { Request } from "express"
+import { Service } from '@prisma/client'
+import { Request } from 'express'
 
 export type ServiceUniqueData = Pick<Service, 'modelId' | 'componentId' | 'qualityId'>
 

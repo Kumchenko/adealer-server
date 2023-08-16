@@ -1,36 +1,43 @@
 {
-  "name": "adealer-server",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.ts",
-  "scripts": {
-    "dev": "dotenv -e ./.env nodemon index.ts",
-    "pre": "dotenv -e ./.env.preview nodemon index.ts",
-    "prisma-dev": "dotenv -e ./.env prisma studio",
-    "prisma-pre": "dotenv -e ./.env.preview prisma studio",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "npm install && prisma migrate deploy",
-    "start": "dotenv -e ./.env.preview ts-node index.ts"
-  },
-  "author": "Kyrylo Kumchenko <kirillkumchenko@gmail.com>",
-  "license": "ISC",
-  "prisma": {
-    "schema": "./src/prisma/schema.prisma"
-  },
-  "dependencies": {
-    "@prisma/client": "^5.0.0",
-    "cors": "^2.8.5",
-    "dotenv": "^16.3.1",
-    "dotenv-cli": "^7.2.1",
-    "express": "^4.18.2"
-  },
-  "devDependencies": {
-    "@types/cors": "^2.8.13",
-    "@types/express": "^4.17.17",
-    "@types/node": "^20.3.2",
-    "nodemon": "^2.0.22",
-    "prisma": "^5.0.0",
-    "ts-node": "^10.9.1",
-    "typescript": "^5.1.3"
-  }
+    "name": "adealer-server",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.ts",
+    "scripts": {
+        "dev": "dotenv -e ./.env nodemon index.ts",
+        "pre": "dotenv -e ./.env.preview nodemon index.ts",
+        "prisma-dev": "dotenv -e ./.env prisma studio",
+        "prisma-pre": "dotenv -e ./.env.preview prisma studio",
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "build": "npm install && prisma migrate deploy",
+        "start": "dotenv -e ./.env.preview ts-node index.ts",
+        "pretty": "prettier --write \"./**/*.{js,jsx,ts,tsx,json}\""
+    },
+    "author": "Kyrylo Kumchenko <kirillkumchenko@gmail.com>",
+    "license": "ISC",
+    "prisma": {
+        "schema": "./src/prisma/schema.prisma"
+    },
+    "dependencies": {
+        "@prisma/client": "^5.0.0",
+        "cookie-parser": "^1.4.6",
+        "cors": "^2.8.5",
+        "dotenv": "^16.3.1",
+        "dotenv-cli": "^7.2.1",
+        "express": "^4.18.2",
+        "jsonwebtoken": "^9.0.1"
+    },
+    "devDependencies": {
+        "@types/cookie-parser": "^1.4.3",
+        "@types/cors": "^2.8.13",
+        "@types/express": "^4.17.17",
+        "@types/jsonwebtoken": "^9.0.2",
+        "@types/node": "^20.3.2",
+        "eslint-config-prettier": "^8.8.0",
+        "nodemon": "^2.0.22",
+        "prettier": "^3.0.0",
+        "prisma": "^5.0.0",
+        "ts-node": "^10.9.1",
+        "typescript": "^5.1.3"
+    }
 }

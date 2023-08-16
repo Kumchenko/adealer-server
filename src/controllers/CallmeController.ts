@@ -1,43 +1,50 @@
-import { Response, NextFunction } from "express"
-import ApiError from "../errors/ApiError";
-import { prisma } from "../lib/prisma";
-import { CallmeCreateRequest, CallmeUpdateRequest, CallmesGetRequest, CallmeCheckRequest, CallmeCheckResponse, CallmeFilter, Sort } from "../interfaces";
-import { getCheckedValue } from "../utils";
+import { Response, Request, NextFunction } from 'express'
+import ApiError from '../errors/ApiError'
+import { prisma } from '../lib/prisma'
+import {
+    CallmeCreateRequest,
+    CallmeUpdateRequest,
+    CallmesGetRequest,
+    CallmeCheckRequest,
+    CallmeCheckResponse,
+    CallmeFilter,
+    Sort,
+} from '../interfaces'
+import { Prisma } from '@prisma/client'
 
 class CallmeController {
     async check(req: CallmeCheckRequest, res: CallmeCheckResponse, next: NextFunction) {
         try {
-            const { id } = req.params;
+            const { id } = req.params
 
             const callme = await prisma.callMe.findUnique({
                 where: {
-                    id: parseInt(id)
-                }
+                    id: parseInt(id),
+                },
             })
 
             if (callme) {
-                res.locals.callme = callme;
-                next();
+                res.locals.callme = callme
+                next()
             } else {
                 throw ApiError.badRequest({
                     i18n: 'callme-not-found',
-                    message: 'CallMe not found'
+                    message: 'CallMe not found',
                 })
             }
-        }
-        catch (e) {
+        } catch (e) {
             next(e)
         }
     }
 
     async create(req: CallmeCreateRequest, res: Response, next: NextFunction) {
         try {
-            const { name, tel } = req.body;
+            const { name, tel } = req.body
 
             if (!tel || !name) {
                 throw ApiError.badRequest({
                     i18n: 'empty-data',
-                    message: 'Provided tel or name is undefined'
+                    message: 'Provided tel or name is undefined',
                 })
             }
 
@@ -45,21 +52,19 @@ class CallmeController {
                 data: {
                     name,
                     tel,
-                }
+                },
             })
 
             res.json(createdCall)
-        }
-        catch (e) {
-            next(e);
+        } catch (e) {
+            next(e)
         }
     }
 
     async get(req: CallmeCheckRequest, res: CallmeCheckResponse, next: NextFunction) {
         try {
             res.json(res.locals.callme)
-        }
-        catch (e) {
+        } catch (e) {
             next(e)
         }
     }
@@ -68,20 +73,19 @@ class CallmeController {
         try {
             const deletedCallme = await prisma.callMe.delete({
                 where: {
-                    id: res.locals.callme.id
-                }
+                    id: res.locals.callme.id,
+                },
             })
 
             if (!deletedCallme) {
                 throw ApiError.badRequest({
                     i18n: 'callme-not-found',
-                    message: 'CallMe not found'
+                    message: 'CallMe not found',
                 })
             }
 
-            res.json(deletedCallme);
-        }
-        catch (e) {
+            res.json(deletedCallme)
+        } catch (e) {
             next(e)
         }
     }
@@ -91,53 +95,120 @@ class CallmeController {
             const updatedCallme = await prisma.callMe.update({
                 data: req.body,
                 where: {
-                    id: res.locals.callme.id
-                }
+                    id: res.locals.callme.id,
+                },
             })
 
             if (!updatedCallme) {
                 throw ApiError.badRequest({
                     i18n: 'callme-not-found',
-                    message: 'CallMe not found'
+                    message: 'CallMe not found',
                 })
             }
 
             res.json(updatedCallme)
-        }
-        catch (e) {
+        } catch (e) {
             next(e)
         }
     }
 
     async getMany(req: CallmesGetRequest, res: Response, next: NextFunction) {
         try {
-            const { id, take = '10', skip = '0', name, tel, createdFrom, createdTo, checkedFrom, checkedTo, sort = Sort.Asc, sortBy = "id", filter = CallmeFilter.All } = req.query;
+            const {
+                id,
+                name,
+                tel,
+                page: pageString = '-1',
+                perPage: perPageString = '-1',
+                from,
+                to,
+                apply,
+                sort = Sort.Asc,
+                sortBy = 'id',
+                filter = CallmeFilter.All,
+            } = req.query
 
-            const callmes = await prisma.callMe.findMany({
-                skip: parseInt(skip),
-                take: parseInt(take),
+            const page = parseInt(pageString)
+            const perPage = parseInt(perPageString)
+
+            const isPagination = page > 0 && perPage > 0
+
+            const query: Prisma.CallMeFindManyArgs = {
                 where: {
                     id: id ? parseInt(id) : undefined,
-                    name: {
-                        contains: name
-                    },
-                    tel: {
-                        contains: tel
-                    },
+                    name: { contains: name },
+                    tel: { contains: tel },
                     created: {
-                        lte: createdTo,
-                        gte: createdFrom
+                        lte:
+                            ((filter === CallmeFilter.Checked && !apply) || filter !== CallmeFilter.Checked) && to
+                                ? new Date(to)
+                                : undefined,
+                        gte:
+                            ((filter === CallmeFilter.Checked && !apply) || filter !== CallmeFilter.Checked) && from
+                                ? new Date(from)
+                                : undefined,
                     },
-                    checked: getCheckedValue(filter, checkedFrom, checkedTo)
+                    checked: {
+                        not: filter === CallmeFilter.Checked ? null : undefined,
+                        equals: filter === CallmeFilter.Created ? null : undefined,
+                        lte: filter === CallmeFilter.Checked && apply && to ? new Date(to) : undefined,
+                        gte: filter === CallmeFilter.Checked && apply && from ? new Date(from) : undefined,
+                    },
                 },
                 orderBy: {
-                    [sortBy]: sort
-                }
-            })
+                    [sortBy]: sort,
+                },
+                skip: isPagination ? (page - 1) * perPage : undefined,
+                take: isPagination ? perPage : undefined,
+            }
 
-            res.json(callmes)
+            const [callmes, count] = await prisma.$transaction([
+                prisma.callMe.findMany(query),
+                prisma.callMe.count({ where: query.where }),
+            ])
+
+            res.json({
+                pagination: {
+                    pages: isPagination ? Math.ceil(count / perPage) : 1,
+                    page: isPagination ? page : 1,
+                    total: count,
+                    perPage: isPagination ? perPage : count,
+                },
+                data: callmes,
+            })
+        } catch (e) {
+            next(e)
         }
-        catch (e) {
+    }
+
+    async getStats(req: Request, res: Response, next: NextFunction) {
+        try {
+            const createdQuery: Prisma.CallMeCountArgs = {
+                where: {
+                    checked: null,
+                },
+            }
+
+            const checkedQuery: Prisma.CallMeCountArgs = {
+                where: {
+                    checked: {
+                        not: null,
+                    },
+                },
+            }
+
+            const [all, created, checked] = await prisma.$transaction([
+                prisma.callMe.count(),
+                prisma.callMe.count(createdQuery),
+                prisma.callMe.count(checkedQuery),
+            ])
+
+            res.json({
+                all,
+                created,
+                checked,
+            })
+        } catch (e) {
             next(e)
         }
     }

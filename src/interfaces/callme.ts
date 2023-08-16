@@ -1,29 +1,28 @@
-import { CallMe } from "@prisma/client";
-import { Request, Response } from "express"
-import { Sort } from ".";
+import { CallMe } from '@prisma/client'
+import { Request, Response } from 'express'
+import { Sort } from '.'
 
 export type CallmeId = {
-    id: string;
+    id: string
 }
 
 export enum CallmeFilter {
     All = 'all',
+    Created = 'created',
     Checked = 'checked',
-    Unchecked = 'unchecked'
 }
 
 export type CallmesQuery = Partial<{
-    id: string;
-    skip: string;
-    take: string;
-    name: string;
-    tel: string;
-    createdFrom: string;
-    createdTo: string;
-    checkedFrom: string;
-    checkedTo: string;
-    filter: CallmeFilter;
-    sortBy: 'id' | 'checked' | 'created';
+    id: string
+    name: string
+    tel: string
+    page: string
+    perPage: string
+    from: string
+    to: string
+    filter: CallmeFilter
+    apply: string
+    sortBy: 'id' | 'name' | 'tel' | 'checked' | 'created'
     sort: Sort
 }>
 
