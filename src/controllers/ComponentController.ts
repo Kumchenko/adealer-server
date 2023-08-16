@@ -43,13 +43,6 @@ class ComponentController {
                 },
             })
 
-            if (components.length === 0) {
-                throw ApiError.internal({
-                    i18n: 'components-not-found',
-                    message: `Components for this model not found`,
-                })
-            }
-
             const componentIds = components.map(component => component.id)
 
             res.json(componentIds)
