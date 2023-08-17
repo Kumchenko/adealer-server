@@ -1,10 +1,10 @@
-import { CookieOptions, NextFunction, Request, Response } from 'express'
+import { NextFunction, Request, Response } from 'express'
 import { prisma } from '../lib/prisma'
 import ApiError from '../errors/ApiError'
-import { EmployeeLoginRequest, EmployeeResponse, RequestWithTokens } from '../interfaces'
+import { EmployeeLoginRequest, EmployeeResponse, RequestWithTokens, TestRequest } from '../interfaces'
 import { Jwt } from '../utils'
 import { signToken } from '../services'
-import { accessTokenCookieOptions, loggedInCookieOptions, refreshTokenCookieOptions } from '../configs'
+import { accessTokenCookieOptions, connectedCookieOptions, refreshTokenCookieOptions } from '../configs'
 import { Employee } from '@prisma/client'
 
 class EmployeeController {
@@ -65,7 +65,6 @@ class EmployeeController {
             // Attaching tokens to cookies
             res.cookie('access_token', accessToken, accessTokenCookieOptions)
             res.cookie('refresh_token', refreshToken, refreshTokenCookieOptions)
-            res.cookie('logged_in', true, loggedInCookieOptions)
 
             res.json(employee)
         } catch (e) {
@@ -77,7 +76,6 @@ class EmployeeController {
         try {
             res.cookie('access_token', '', { maxAge: 0 })
             res.cookie('refresh_token', '', { maxAge: 0 })
-            res.cookie('logged_in', false, { maxAge: 0 })
             res.sendStatus(200)
         } catch (e) {
             next(e)
@@ -95,6 +93,30 @@ class EmployeeController {
                 id: employee.id,
                 login: employee.login,
             })
+        } catch (e) {
+            next(e)
+        }
+    }
+
+    async connect(req: Request, res: Response, next: NextFunction) {
+        try {
+            res.cookie('connected', true, connectedCookieOptions)
+            res.sendStatus(200)
+        } catch (e) {
+            next(e)
+        }
+    }
+
+    async test(req: TestRequest, res: Response, next: NextFunction) {
+        try {
+            if (req.cookies.connected) {
+                res.sendStatus(200)
+            } else {
+                throw ApiError.badRequest({
+                    i18n: 'cross-site-failed',
+                    message: 'Checking for Cross-Site requests failed',
+                })
+            }
         } catch (e) {
             next(e)
         }

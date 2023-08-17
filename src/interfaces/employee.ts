@@ -17,3 +17,9 @@ export type AuthResponse = Response<{}, { employee: EmployeeData }>
 export type EmployeeLoginRequest = Request<{}, {}, LoginData>
 
 export type EmployeeResponse = Response<{}, { employee: LoginData }>
+
+export interface TestRequest extends Request {
+    cookies: {
+        connected?: string
+    }
+}

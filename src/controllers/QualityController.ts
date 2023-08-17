@@ -8,7 +8,7 @@ class QualityController {
             const qualities = await prisma.quality.findMany()
 
             if (qualities.length === 0) {
-                throw ApiError.forbidden({
+                throw ApiError.internal({
                     i18n: 'qualities-not-found',
                     message: 'Qualities not found',
                 })
