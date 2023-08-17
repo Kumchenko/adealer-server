@@ -135,7 +135,7 @@ class CallmeController {
 
             const query: Prisma.CallMeFindManyArgs = {
                 where: {
-                    id: id ? parseInt(id) : undefined,
+                    id: (id && parseInt(id)) || undefined,
                     name: { contains: name },
                     tel: { contains: tel },
                     created: {

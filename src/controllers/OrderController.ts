@@ -235,7 +235,7 @@ class OrderController {
 
             const query: Prisma.OrderFindManyArgs = {
                 where: {
-                    id: id ? parseInt(id) : undefined,
+                    id: (id && parseInt(id)) || undefined,
                     name: {
                         contains: name,
                     },
@@ -345,12 +345,7 @@ class OrderController {
 
             const popularService =
                 services.length > 0
-                    ? services.reduce((max, cur) => {
-                          if (cur._count > max._count) {
-                              return cur
-                          }
-                          return max
-                      })
+                    ? services.reduce((max, cur) => (cur._count.orders > max._count.orders ? cur : max))
                     : null
 
             const [all, created, processing, done] = await prisma.$transaction([
