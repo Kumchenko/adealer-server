@@ -7,14 +7,6 @@ class ComponentController {
     async getMany(req: Request, res: Response, next: NextFunction) {
         try {
             const components = await prisma.component.findMany()
-
-            if (components.length === 0) {
-                throw ApiError.internal({
-                    i18n: 'components-not-found',
-                    message: `Components not found`,
-                })
-            }
-
             const componentIds = components.map(component => component.id)
             res.json(componentIds)
         } catch (e) {
@@ -27,10 +19,7 @@ class ComponentController {
             const { modelId } = req.params
 
             if (!modelId) {
-                throw ApiError.badRequest({
-                    i18n: 'model-id-is-undefined',
-                    message: 'Provided modelId is undefined',
-                })
+                throw ApiError.badRequest('model-id-is-undefined')
             }
 
             const components = await prisma.component.findMany({

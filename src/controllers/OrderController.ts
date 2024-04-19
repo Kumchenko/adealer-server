@@ -22,10 +22,7 @@ class OrderController {
             const { id } = req.params
 
             if (!id) {
-                throw ApiError.badRequest({
-                    i18n: 'id-is-undefined',
-                    message: 'Provided id is undefined',
-                })
+                throw ApiError.badRequest('id-is-undefined')
             }
 
             const order = await prisma.order.findUnique({
@@ -46,10 +43,7 @@ class OrderController {
                 res.locals.order = order
                 next()
             } else {
-                throw ApiError.badRequest({
-                    i18n: 'order-not-found',
-                    message: 'Order not found',
-                })
+                throw ApiError.badRequest('order-not-found')
             }
         } catch (e) {
             next(e)
@@ -71,10 +65,7 @@ class OrderController {
             })
 
             if (!service) {
-                throw ApiError.badRequest({
-                    i18n: 'service-not-found',
-                    message: 'Service not found',
-                })
+                throw ApiError.badRequest('service-not-found')
             }
 
             const order = await prisma.order.create({
@@ -99,19 +90,13 @@ class OrderController {
             const { tel } = req.query
 
             if (!tel) {
-                throw ApiError.badRequest({
-                    i18n: 'tel-is-undefined',
-                    message: 'Provided tel is undefined',
-                })
+                throw ApiError.badRequest('tel-is-undefined')
             }
 
             if (res.locals.order?.tel === tel) {
                 res.json(res.locals.order)
             } else {
-                throw ApiError.badRequest({
-                    i18n: 'tel-is-wrong',
-                    message: 'The given tel is wrong',
-                })
+                throw ApiError.badRequest('tel-is-wrong')
             }
         } catch (e) {
             next(e)
@@ -164,10 +149,7 @@ class OrderController {
             })
 
             if (!newService) {
-                throw ApiError.badRequest({
-                    i18n: 'service-not-found',
-                    message: 'Service not found',
-                })
+                throw ApiError.badRequest('service-not-found')
             }
 
             if (status) {

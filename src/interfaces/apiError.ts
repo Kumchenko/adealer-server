@@ -1,10 +1,7 @@
-export interface IApiErrorCreator {
-    i18n: string
-    message: string
-}
-
-export interface IApiErrorConstructor extends IApiErrorCreator {
+export interface IApiErrorConstructor {
     status: number
+    message: string
+    params?: string[]
 }
 
 export interface IApiError extends IApiErrorConstructor, Error {}

@@ -35,10 +35,7 @@ class EmployeeController {
         try {
             const { login, password } = res.locals.employee
             if (!login || !password) {
-                throw ApiError.badRequest({
-                    i18n: 'empty-login-data',
-                    message: 'Login or password is empty',
-                })
+                throw ApiError.badRequest('empty-login-data')
             }
 
             const employee = await prisma.employee.findUnique({
@@ -46,17 +43,11 @@ class EmployeeController {
             })
 
             if (!employee) {
-                throw ApiError.badRequest({
-                    i18n: 'employee-not-found',
-                    message: 'Employee with such login not found',
-                })
+                throw ApiError.badRequest('employee-not-found')
             }
 
             if (employee.password !== password) {
-                throw ApiError.badRequest({
-                    i18n: 'password-is-wrong',
-                    message: 'The password is wrong',
-                })
+                throw ApiError.badRequest('password-is-wrong')
             }
 
             // Generating tokens
@@ -112,10 +103,7 @@ class EmployeeController {
             if (req.cookies.connected) {
                 res.sendStatus(200)
             } else {
-                throw ApiError.badRequest({
-                    i18n: 'cross-site-failed',
-                    message: 'Checking for Cross-Site requests failed',
-                })
+                throw ApiError.badRequest('cross-site-failed')
             }
         } catch (e) {
             next(e)
