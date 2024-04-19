@@ -27,10 +27,7 @@ class CallmeController {
                 res.locals.callme = callme
                 next()
             } else {
-                throw ApiError.badRequest({
-                    i18n: 'callme-not-found',
-                    message: 'CallMe not found',
-                })
+                throw ApiError.badRequest('callme-not-found')
             }
         } catch (e) {
             next(e)
@@ -42,10 +39,7 @@ class CallmeController {
             const { name, tel } = req.body
 
             if (!tel || !name) {
-                throw ApiError.badRequest({
-                    i18n: 'empty-data',
-                    message: 'Provided tel or name is undefined',
-                })
+                throw ApiError.badRequest('empty-data')
             }
 
             const createdCall = await prisma.callMe.create({
@@ -78,10 +72,7 @@ class CallmeController {
             })
 
             if (!deletedCallme) {
-                throw ApiError.badRequest({
-                    i18n: 'callme-not-found',
-                    message: 'CallMe not found',
-                })
+                throw ApiError.badRequest('callme-not-found')
             }
 
             res.json(deletedCallme)
@@ -100,10 +91,7 @@ class CallmeController {
             })
 
             if (!updatedCallme) {
-                throw ApiError.badRequest({
-                    i18n: 'callme-not-found',
-                    message: 'CallMe not found',
-                })
+                throw ApiError.badRequest('callme-not-found')
             }
 
             res.json(updatedCallme)

@@ -1,16 +1,14 @@
 {
     "name": "adealer-server",
-    "version": "1.0.0",
+    "version": "1.0.2",
     "description": "",
     "main": "index.ts",
     "scripts": {
         "dev": "dotenv -e ./.env nodemon index.ts",
-        "pre": "dotenv -e ./.env.preview nodemon index.ts",
-        "prisma-dev": "dotenv -e ./.env prisma studio",
-        "prisma-pre": "dotenv -e ./.env.preview prisma studio",
-        "test": "echo \"Error: no test specified\" && exit 1",
-        "build": "npm install && prisma migrate deploy",
+        "dev:prisma": "dotenv -e ./.env prisma studio",
         "start": "dotenv -e ./.env.preview ts-node index.ts",
+        "start:prisma": "dotenv -e ./.env.preview prisma studio",
+        "deploy": "prisma migrate deploy",
         "pretty": "prettier --write \"./**/*.{js,jsx,ts,tsx,json}\""
     },
     "author": "Kyrylo Kumchenko <kirillkumchenko@gmail.com>",
@@ -19,7 +17,7 @@
         "schema": "./src/prisma/schema.prisma"
     },
     "dependencies": {
-        "@prisma/client": "^5.0.0",
+        "@prisma/client": "^5.7.1",
         "cookie-parser": "^1.4.6",
         "cors": "^2.8.5",
         "dotenv": "^16.3.1",
@@ -34,9 +32,9 @@
         "@types/jsonwebtoken": "^9.0.2",
         "@types/node": "^20.3.2",
         "eslint-config-prettier": "^8.8.0",
-        "nodemon": "^2.0.22",
+        "nodemon": "^3.0.2",
         "prettier": "^3.0.0",
-        "prisma": "^5.0.0",
+        "prisma": "^5.7.1",
         "ts-node": "^10.9.1",
         "typescript": "^5.1.3"
     }

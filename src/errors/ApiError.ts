@@ -1,38 +1,39 @@
-import { IApiError, IApiErrorConstructor, IApiErrorCreator } from '../interfaces'
+import { API_ERROR } from '../constants'
+import { IApiErrorConstructor } from '../interfaces'
 
 class ApiError extends Error {
     status: number
-    i18n: string
     message: string
+    params: string[] | undefined
 
-    constructor({ status, i18n, message }: IApiErrorConstructor) {
-        super('ApiError')
+    constructor({ status, message, params }: IApiErrorConstructor) {
+        super(message)
+        this.name = API_ERROR
         this.status = status
-        this.i18n = i18n
         this.message = message
+        this.params = params
     }
 
-    static badRequest({ i18n, message }: IApiErrorCreator) {
-        return new ApiError({ status: 400, i18n, message })
+    static badRequest(message: string, params?: string[]) {
+        return new ApiError({ status: 400, message, params })
     }
 
-    static forbidden({ i18n, message }: IApiErrorCreator) {
-        return new ApiError({ status: 403, i18n, message })
+    static forbidden(message: string, params?: string[]) {
+        return new ApiError({ status: 403, message, params })
     }
 
-    static internal({ i18n, message }: IApiErrorCreator) {
-        return new ApiError({ status: 500, i18n, message })
+    static internal(message: string, params?: string[]) {
+        return new ApiError({ status: 500, message, params })
     }
 
     static notSupported() {
-        return this.badRequest({ i18n: 'occured', message: 'This path is not supported' })
+        return this.badRequest('not-supported')
     }
 
     static notAuthorized() {
         return new ApiError({
             status: 401,
-            i18n: 'not-authorized',
-            message: 'You are not authorized to make this Request',
+            message: 'not-authorized',
         })
     }
 }

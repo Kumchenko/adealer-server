@@ -6,14 +6,6 @@ class QualityController {
     async getMany(req: Request, res: Response, next: NextFunction) {
         try {
             const qualities = await prisma.quality.findMany()
-
-            if (qualities.length === 0) {
-                throw ApiError.internal({
-                    i18n: 'qualities-not-found',
-                    message: 'Qualities not found',
-                })
-            }
-
             const qualityIds = qualities.map(quality => quality.id)
             res.json(qualityIds)
         } catch (e) {

@@ -5,9 +5,6 @@ export function env(variable: string) {
     if (value) {
         return value
     } else {
-        throw ApiError.internal({
-            i18n: 'variable-not-found',
-            message: `Variable ${variable} not found`,
-        })
+        throw ApiError.internal('variable-not-found', [variable])
     }
 }

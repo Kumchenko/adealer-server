@@ -1,0 +1,19 @@
+{
+    "callme-not-found": "Requested call not found",
+    "empty-data": "Missing some fields to perform request",
+    "components-not-found": "No components found",
+    "models-not-found": "No models found",
+    "qualities-not-found": "No qualities found",
+    "model-id-is-undefined": "Couldn't perform request due to empty model provided",
+    "empty-login-data": "Login or password is empty",
+    "employee-not-found": "An Employee with such login wasn't found",
+    "password-is-wrong": "Wrong password",
+    "cross-site-failed": "Checking for Cross-Site requests failed",
+    "id-is-undefined": "Received incorrect id",
+    "order-not-found": "Order wasn't found",
+    "service-not-found": "Service wasn't found",
+    "tel-is-undefined": "Received empty phone number",
+    "tel-is-wrong": "The given tel is wrong",
+    "not-supported": "This path is not supported",
+    "not-authorized": "You are not authorized to make this Request"
+}
