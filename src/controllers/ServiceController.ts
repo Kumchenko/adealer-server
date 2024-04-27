@@ -1,9 +1,9 @@
 import { NextFunction, Response } from 'express'
 import { prisma } from '../lib/prisma'
-import { ServicesGetRequest } from '../interfaces'
+import { IServicesGetRequest } from '../models'
 
 class ServiceController {
-    async getMany(req: ServicesGetRequest, res: Response, next: NextFunction) {
+    async getMany(req: IServicesGetRequest, res: Response, next: NextFunction) {
         try {
             const { modelId, componentId, qualityId } = req.query
             const services = await prisma.service.findMany({

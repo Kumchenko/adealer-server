@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from 'express'
 import { prisma } from '../lib/prisma'
-import ApiError from '../errors/ApiError'
 
 class ModelController {
     async getMany(req: Request, res: Response, next: NextFunction) {

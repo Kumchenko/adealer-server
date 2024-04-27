@@ -1,26 +1,11 @@
-import { NextFunction, Request, Response } from 'express'
+import { NextFunction, Response } from 'express'
 import { prisma } from '../lib/prisma'
-import ApiError from '../errors/ApiError'
-import { ComponentsGetRequest } from '../interfaces'
+import { IComponentsGetRequest } from '../models'
 
 class ComponentController {
-    async getMany(req: Request, res: Response, next: NextFunction) {
+    async getMany(req: IComponentsGetRequest, res: Response, next: NextFunction) {
         try {
-            const components = await prisma.component.findMany()
-            const componentIds = components.map(component => component.id)
-            res.json(componentIds)
-        } catch (e) {
-            next(e)
-        }
-    }
-
-    async getManyByModel(req: ComponentsGetRequest, res: Response, next: NextFunction) {
-        try {
-            const { modelId } = req.params
-
-            if (!modelId) {
-                throw ApiError.badRequest('model-id-is-undefined')
-            }
+            const { modelId } = req.query
 
             const components = await prisma.component.findMany({
                 where: {
@@ -33,7 +18,6 @@ class ComponentController {
             })
 
             const componentIds = components.map(component => component.id)
-
             res.json(componentIds)
         } catch (e) {
             next(e)

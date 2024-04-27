@@ -1,22 +1,22 @@
 import { Prisma } from '@prisma/client'
-import { OrderFilter } from '../interfaces'
+import { EOrderFilter } from '../../models'
 
-export function getOrderFilter(
-    filter: OrderFilter,
+export const getOrderFilter = (
+    filter: EOrderFilter,
     apply?: string,
     from?: Date,
     to?: Date,
-): Prisma.OperationListRelationFilter | undefined {
+): Prisma.OperationListRelationFilter | undefined => {
     switch (filter) {
-        case OrderFilter.All: {
+        case EOrderFilter.All: {
             return undefined
         }
-        case OrderFilter.Created: {
+        case EOrderFilter.Created: {
             return {
                 none: {},
             }
         }
-        case OrderFilter.Process: {
+        case EOrderFilter.Process: {
             return {
                 some: {
                     status: filter,
@@ -26,11 +26,11 @@ export function getOrderFilter(
                     },
                 },
                 none: {
-                    status: OrderFilter.Done,
+                    status: EOrderFilter.Done,
                 },
             }
         }
-        case OrderFilter.Done: {
+        case EOrderFilter.Done: {
             return {
                 some: {
                     status: filter,

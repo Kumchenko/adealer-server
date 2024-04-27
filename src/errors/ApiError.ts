@@ -1,5 +1,4 @@
-import { API_ERROR } from '../constants'
-import { IApiErrorConstructor } from '../interfaces'
+import { API_ERROR_NAME, IApiErrorConstructor } from '../models'
 
 class ApiError extends Error {
     status: number
@@ -8,7 +7,7 @@ class ApiError extends Error {
 
     constructor({ status, message, params }: IApiErrorConstructor) {
         super(message)
-        this.name = API_ERROR
+        this.name = API_ERROR_NAME
         this.status = status
         this.message = message
         this.params = params

@@ -1,6 +1,5 @@
 import * as jwt from 'jsonwebtoken'
 import { env } from '.'
-import { isDev } from '../constants'
 
 class Jwt {
     static sign = (data: object, options?: jwt.SignOptions) => jwt.sign(data, env('SECRET_KEY'), options)
