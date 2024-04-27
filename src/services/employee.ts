@@ -1,8 +1,8 @@
 import { accessTokenMaxAge, refreshTokenMaxAge } from '../configs'
 import { Jwt } from '../utils'
-import { EmployeeData } from '../models'
+import { IEmployeeData } from '../models'
 
-export const signToken = (employee: EmployeeData) => {
+export const signToken = (employee: IEmployeeData) => {
     const accessToken = Jwt.sign(employee, {
         expiresIn: accessTokenMaxAge,
     })

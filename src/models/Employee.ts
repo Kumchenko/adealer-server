@@ -1,20 +1,35 @@
-import { Employee } from '@prisma/client'
 import { Request, Response } from 'express'
 
-export type LoginData = Pick<Employee, 'login' | 'password'>
+export interface IEmployeeLogin {
+    login: string
+    password: string
+}
 
-export type EmployeeData = Pick<Employee, 'id' | 'login'>
+export interface IEmployeeAuthorization {
+    id: number
+    login: string
+    accessToken: string
+    refreshToken: string
+}
 
-export type RefreshRequest = Request<
-    {},
-    {},
-    {
-        refreshToken: string
-    }
->
+export interface IEmployeeTokens {
+    accessToken: string
+    refreshToken: string
+}
 
-export type AuthResponse = Response<{}, { employee: EmployeeData }>
+export interface IEmployeeData {
+    id: number
+    login: string
+}
 
-export type EmployeeLoginRequest = Request<{}, {}, LoginData>
+export interface IEmployeeRefresh {
+    refreshToken: string
+}
 
-export type EmployeeResponse = Response<{}, { employee: LoginData }>
+export type IEmployeeRefreshRequest = Request<{}, {}, IEmployeeRefresh>
+
+export type IEmployeeLoginRequest = Request<{}, {}, IEmployeeLogin>
+
+export type IEmployeeAuthResponse = Response<{}, IEmployeeLogin>
+
+export type IEmployeeResponse = Response<{}, IEmployeeData>

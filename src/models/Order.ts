@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
 import { Operation, Order, Service, Status } from '@prisma/client'
-import { AuthResponse } from '.'
+import { IEmployeeData } from './Employee'
 
 export enum EOrderFilter {
     All = 'ALL',
@@ -46,6 +46,11 @@ export interface IOrderGetQuery {
     tel?: string
 }
 
+export interface IOrderRead {
+    order: Order & { service: Service; operations: Operation[] }
+    employee: IEmployeeData
+}
+
 export interface IOrderCreate {
     name: string
     surname: string
@@ -72,8 +77,7 @@ export type IOrderCreateRequest = Request<{}, {}, IOrderCreate>
 
 export type IOrderCheckRequest = Request<IOrderCheckParams>
 
-export type IOrderCheckResponse = Response<{}, { order: Order & { service: Service; operations: Operation[] } }> &
-    AuthResponse
+export type IOrderCheckResponse = Response<{}, IOrderRead>
 
 export type IOrderGetRequest = Request<{}, {}, {}, IOrderGetQuery> & IOrderCheckRequest
 
