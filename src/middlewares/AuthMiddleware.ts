@@ -1,16 +1,16 @@
-import { NextFunction } from 'express'
+import { NextFunction, Request } from 'express'
 import ApiError from '../errors/ApiError'
-import { AuthResponse, EmployeeData, RequestWithTokens } from '../interfaces'
+import { AuthResponse, EmployeeData } from '../models'
 import { Jwt } from '../utils/Jwt'
 
-export function authMiddleware(req: RequestWithTokens, res: AuthResponse, next: NextFunction) {
+export default function AuthMiddleware(req: Request, res: AuthResponse, next: NextFunction) {
     try {
         if (req.method === 'OPTIONS') {
             next()
         }
 
         // Getting token from cookie
-        let token = req.cookies.access_token
+        const token = req.headers.authorization?.split('Bearer ')?.at(1)
 
         // If not decoded or token undefined throw error
         const decoded = Jwt.verify<EmployeeData>(token)

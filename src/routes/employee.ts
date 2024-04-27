@@ -5,11 +5,8 @@ const router = Router()
 const authRouter = Router()
 
 // Handlers
-router.get('/connect', EmployeeController.connect)
-router.get('/test', EmployeeController.test)
 router.post('/login', EmployeeController.login, EmployeeController.authorization)
-router.get('/refresh', EmployeeController.refresh, EmployeeController.authorization)
-router.get('/logout', EmployeeController.logout)
+router.post('/refresh', EmployeeController.refresh, EmployeeController.authorization)
 
 // Handlers for routes which require Authorization
 authRouter.get('/info', EmployeeController.info)

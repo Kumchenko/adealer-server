@@ -19,7 +19,7 @@ class TranslationController {
     }
 
     getTranslation(locale: string = _fallbackLocale, key: string) {
-        return this.translations?.[locale]?.[key] ?? key
+        return this.translations?.[locale]?.[key] ?? this.translations?.[_fallbackLocale]?.[key] ?? key
     }
 }
 

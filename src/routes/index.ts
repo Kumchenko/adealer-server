@@ -6,7 +6,7 @@ import componentRouter from './component'
 import serviceRouter from './service'
 import qualityRouter from './quality'
 import { employeeRouter, employeeAuthRouter } from './employee'
-import { authMiddleware } from '../middlewares/AuthMiddleware'
+import AuthMiddleware from '../middlewares/AuthMiddleware'
 
 const router = Router()
 const authRouter = Router()
@@ -27,6 +27,6 @@ authRouter.use('/callmes', callmeAuthRouter)
 authRouter.use('/employee', employeeAuthRouter)
 
 // Keeping non-auth and auth routers together
-const globalRouter = Router().use('/', router).use('/auth', authMiddleware, authRouter)
+const globalRouter = Router().use('/', router).use('/auth', AuthMiddleware, authRouter)
 
 export default globalRouter

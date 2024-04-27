@@ -2,18 +2,18 @@ import { Response, Request, NextFunction } from 'express'
 import ApiError from '../errors/ApiError'
 import { prisma } from '../lib/prisma'
 import {
-    CallmeCreateRequest,
-    CallmeUpdateRequest,
-    CallmesGetRequest,
-    CallmeCheckRequest,
-    CallmeCheckResponse,
-    CallmeFilter,
-    Sort,
-} from '../interfaces'
+    ECallMeFilter,
+    ECallMeSortByField,
+    ICallMeCheckRequest,
+    ICallMeCheckResponse,
+    ICallMeCreateRequest,
+    ICallMeUpdateRequest,
+    ICallMesGetRequest,
+} from '../models'
 import { Prisma } from '@prisma/client'
 
 class CallmeController {
-    async check(req: CallmeCheckRequest, res: CallmeCheckResponse, next: NextFunction) {
+    async check(req: ICallMeCheckRequest, res: ICallMeCheckResponse, next: NextFunction) {
         try {
             const { id } = req.params
 
@@ -24,7 +24,7 @@ class CallmeController {
             })
 
             if (callme) {
-                res.locals.callme = callme
+                res.locals = callme
                 next()
             } else {
                 throw ApiError.badRequest('callme-not-found')
@@ -34,7 +34,7 @@ class CallmeController {
         }
     }
 
-    async create(req: CallmeCreateRequest, res: Response, next: NextFunction) {
+    async create(req: ICallMeCreateRequest, res: Response, next: NextFunction) {
         try {
             const { name, tel } = req.body
 
@@ -55,19 +55,19 @@ class CallmeController {
         }
     }
 
-    async get(req: CallmeCheckRequest, res: CallmeCheckResponse, next: NextFunction) {
+    async get(req: ICallMeCheckRequest, res: ICallMeCheckResponse, next: NextFunction) {
         try {
-            res.json(res.locals.callme)
+            res.json(res.locals)
         } catch (e) {
             next(e)
         }
     }
 
-    async delete(req: CallmeCheckRequest, res: CallmeCheckResponse, next: NextFunction) {
+    async delete(req: ICallMeCheckRequest, res: ICallMeCheckResponse, next: NextFunction) {
         try {
             const deletedCallme = await prisma.callMe.delete({
                 where: {
-                    id: res.locals.callme.id,
+                    id: res.locals.id,
                 },
             })
 
@@ -81,12 +81,18 @@ class CallmeController {
         }
     }
 
-    async update(req: CallmeUpdateRequest, res: CallmeCheckResponse, next: NextFunction) {
+    async update(req: ICallMeUpdateRequest, res: ICallMeCheckResponse, next: NextFunction) {
         try {
+            const { name, tel, checked } = req.body
+
             const updatedCallme = await prisma.callMe.update({
-                data: req.body,
+                data: {
+                    name,
+                    tel,
+                    checked: checked ? new Date() : null,
+                },
                 where: {
-                    id: res.locals.callme.id,
+                    id: res.locals.id,
                 },
             })
 
@@ -100,7 +106,7 @@ class CallmeController {
         }
     }
 
-    async getMany(req: CallmesGetRequest, res: Response, next: NextFunction) {
+    async getMany(req: ICallMesGetRequest, res: Response, next: NextFunction) {
         try {
             const {
                 id,
@@ -111,9 +117,9 @@ class CallmeController {
                 from,
                 to,
                 apply,
-                sort = Sort.Asc,
-                sortBy = 'id',
-                filter = CallmeFilter.All,
+                sortDesc = false,
+                sortBy = ECallMeSortByField.ID,
+                filter = ECallMeFilter.All,
             } = req.query
 
             const page = parseInt(pageString)
@@ -128,23 +134,23 @@ class CallmeController {
                     tel: { contains: tel },
                     created: {
                         lte:
-                            ((filter === CallmeFilter.Checked && !apply) || filter !== CallmeFilter.Checked) && to
+                            ((filter === ECallMeFilter.Checked && !apply) || filter !== ECallMeFilter.Checked) && to
                                 ? new Date(to)
                                 : undefined,
                         gte:
-                            ((filter === CallmeFilter.Checked && !apply) || filter !== CallmeFilter.Checked) && from
+                            ((filter === ECallMeFilter.Checked && !apply) || filter !== ECallMeFilter.Checked) && from
                                 ? new Date(from)
                                 : undefined,
                     },
                     checked: {
-                        not: filter === CallmeFilter.Checked ? null : undefined,
-                        equals: filter === CallmeFilter.Created ? null : undefined,
-                        lte: filter === CallmeFilter.Checked && apply && to ? new Date(to) : undefined,
-                        gte: filter === CallmeFilter.Checked && apply && from ? new Date(from) : undefined,
+                        not: filter === ECallMeFilter.Checked ? null : undefined,
+                        equals: filter === ECallMeFilter.Created ? null : undefined,
+                        lte: filter === ECallMeFilter.Checked && apply && to ? new Date(to) : undefined,
+                        gte: filter === ECallMeFilter.Checked && apply && from ? new Date(from) : undefined,
                     },
                 },
                 orderBy: {
-                    [sortBy]: sort,
+                    [sortBy]: sortDesc ? 'desc' : 'asc',
                 },
                 skip: isPagination ? (page - 1) * perPage : undefined,
                 take: isPagination ? perPage : undefined,

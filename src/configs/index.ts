@@ -8,7 +8,6 @@ const defaultCookieOptions: CookieOptions = {
 }
 
 export const accessTokenMaxAge = 1000 * 60 * 15 // 15 Minutes
-export const connectedTokenMaxAge = 1000 * 60 // 1 Minute
 export const refreshTokenMaxAge = 1000 * 60 * 30 // 30 Minutes
 
 export const corsOptions: CorsOptions = {
@@ -18,12 +17,6 @@ export const corsOptions: CorsOptions = {
 
 export const accessTokenCookieOptions: CookieOptions = {
     maxAge: accessTokenMaxAge,
-    httpOnly: true,
-    ...defaultCookieOptions,
-}
-
-export const connectedCookieOptions: CookieOptions = {
-    maxAge: connectedTokenMaxAge,
     httpOnly: true,
     ...defaultCookieOptions,
 }

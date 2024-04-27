@@ -1,29 +1,24 @@
 import { NextFunction, Request, Response } from 'express'
 import { prisma } from '../lib/prisma'
 import ApiError from '../errors/ApiError'
-import {
-    OrderCheckRequest,
-    OrderCheckResponse,
-    OrderCreateRequest,
-    OrderDeleteRequest,
-    OrderFilter,
-    OrderGetRequest,
-    OrderSortBy,
-    OrderUpdateRequest,
-    OrdersGetRequest,
-    Sort,
-} from '../interfaces'
-import { getOrderFilter } from '../utils'
 import { Prisma, Status } from '@prisma/client'
+import {
+    EOrderFilter,
+    EOrderSortByField,
+    IOrderCheckRequest,
+    IOrderCheckResponse,
+    IOrderCreateRequest,
+    IOrderDeleteRequest,
+    IOrderGetRequest,
+    IOrderUpdateRequest,
+    IOrdersGetRequest,
+} from '../models'
+import OrderUtils from '../utils/Order'
 
 class OrderController {
-    async check(req: OrderCheckRequest, res: OrderCheckResponse, next: NextFunction) {
+    async check(req: IOrderCheckRequest, res: IOrderCheckResponse, next: NextFunction) {
         try {
             const { id } = req.params
-
-            if (!id) {
-                throw ApiError.badRequest('id-is-undefined')
-            }
 
             const order = await prisma.order.findUnique({
                 where: {
@@ -50,7 +45,7 @@ class OrderController {
         }
     }
 
-    async create(req: OrderCreateRequest, res: Response, next: NextFunction) {
+    async create(req: IOrderCreateRequest, res: Response, next: NextFunction) {
         try {
             const { name, surname, tel, email, modelId, componentId, qualityId } = req.body
 
@@ -85,13 +80,9 @@ class OrderController {
         }
     }
 
-    async getWithoutAuth(req: OrderGetRequest, res: OrderCheckResponse, next: NextFunction) {
+    async getWithoutAuth(req: IOrderGetRequest, res: IOrderCheckResponse, next: NextFunction) {
         try {
             const { tel } = req.query
-
-            if (!tel) {
-                throw ApiError.badRequest('tel-is-undefined')
-            }
 
             if (res.locals.order?.tel === tel) {
                 res.json(res.locals.order)
@@ -103,7 +94,7 @@ class OrderController {
         }
     }
 
-    async get(req: OrderGetRequest, res: OrderCheckResponse, next: NextFunction) {
+    async get(req: IOrderGetRequest, res: IOrderCheckResponse, next: NextFunction) {
         try {
             res.json(res.locals.order)
         } catch (e) {
@@ -111,7 +102,7 @@ class OrderController {
         }
     }
 
-    async delete(req: OrderDeleteRequest, res: OrderCheckResponse, next: NextFunction) {
+    async delete(req: IOrderDeleteRequest, res: IOrderCheckResponse, next: NextFunction) {
         try {
             const { id } = res.locals.order
             await prisma.operation.deleteMany({
@@ -130,7 +121,7 @@ class OrderController {
         }
     }
 
-    async update(req: OrderUpdateRequest, res: OrderCheckResponse, next: NextFunction) {
+    async update(req: IOrderUpdateRequest, res: IOrderCheckResponse, next: NextFunction) {
         try {
             const { name, surname, tel, email, modelId, componentId, qualityId, cost, status } = req.body
             const {
@@ -138,12 +129,14 @@ class OrderController {
                 employee,
             } = res.locals
 
+            const parsedCost = parseInt(cost ?? '-1')
+
             const newService = await prisma.service.findUnique({
                 where: {
                     modelId_componentId_qualityId: {
-                        modelId: modelId || service.modelId,
-                        componentId: componentId || service.componentId,
-                        qualityId: qualityId || service.qualityId,
+                        modelId: modelId ?? service.modelId,
+                        componentId: componentId ?? service.componentId,
+                        qualityId: qualityId ?? service.qualityId,
                     },
                 },
             })
@@ -172,7 +165,7 @@ class OrderController {
                     tel,
                     email,
                     serviceId: newService.id,
-                    cost: cost || service.cost,
+                    cost: parsedCost >= 0 ? parsedCost : service.cost,
                 },
                 include: {
                     operations: true,
@@ -186,7 +179,7 @@ class OrderController {
         }
     }
 
-    async getMany(req: OrdersGetRequest, res: Response, next: NextFunction) {
+    async getMany(req: IOrdersGetRequest, res: Response, next: NextFunction) {
         try {
             const {
                 id,
@@ -202,9 +195,9 @@ class OrderController {
                 from,
                 to,
                 apply,
-                filter = OrderFilter.All,
-                sort = Sort.Asc,
-                sortBy = OrderSortBy.ID,
+                filter = EOrderFilter.All,
+                sortDesc = false,
+                sortBy = EOrderSortByField.ID,
             } = req.query
 
             const page = parseInt(pageString)
@@ -237,13 +230,15 @@ class OrderController {
                     },
                     created: {
                         lte:
-                            !apply || filter === OrderFilter.All || filter === OrderFilter.Created ? toDate : undefined,
+                            !apply || filter === EOrderFilter.All || filter === EOrderFilter.Created
+                                ? toDate
+                                : undefined,
                         gte:
-                            !apply || filter === OrderFilter.All || filter === OrderFilter.Created
+                            !apply || filter === EOrderFilter.All || filter === EOrderFilter.Created
                                 ? fromDate
                                 : undefined,
                     },
-                    operations: getOrderFilter(filter, apply, fromDate, toDate),
+                    operations: OrderUtils.getOrderFilter(filter, apply, fromDate, toDate),
                 },
                 include: {
                     service: true,
@@ -259,7 +254,7 @@ class OrderController {
                     },
                 },
                 orderBy: {
-                    [sortBy]: sort,
+                    [sortBy]: sortDesc ? 'desc' : 'asc',
                 },
                 skip: isPagination ? (page - 1) * perPage : undefined,
                 take: isPagination ? perPage : undefined,
