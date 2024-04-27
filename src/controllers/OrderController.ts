@@ -27,7 +27,12 @@ class OrderController {
                 include: {
                     operations: {
                         include: {
-                            employee: true,
+                            employee: {
+                                select: {
+                                    id: true,
+                                    login: true,
+                                },
+                            },
                         },
                     },
                     service: true,

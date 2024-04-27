@@ -1,22 +1,22 @@
 import { NextFunction, Request, Response } from 'express'
 import { prisma } from '../lib/prisma'
 import ApiError from '../errors/ApiError'
-import { EmployeeLoginRequest, EmployeeResponse, RefreshRequest } from '../models'
+import { IEmployeeLoginRequest, IEmployeeRefreshRequest, IEmployeeAuthResponse } from '../models'
 import { Jwt } from '../utils'
 import { signToken } from '../services'
 import { Employee } from '@prisma/client'
 
 class EmployeeController {
-    async login(req: EmployeeLoginRequest, res: EmployeeResponse, next: NextFunction) {
+    async login(req: IEmployeeLoginRequest, res: IEmployeeAuthResponse, next: NextFunction) {
         try {
-            res.locals.employee = req.body
+            res.locals = req.body
             next()
         } catch (e) {
             next(e)
         }
     }
 
-    async refresh(req: RefreshRequest, res: EmployeeResponse, next: NextFunction) {
+    async refresh(req: IEmployeeRefreshRequest, res: IEmployeeAuthResponse, next: NextFunction) {
         try {
             const { refreshToken } = req.body
 
@@ -25,16 +25,16 @@ class EmployeeController {
                 throw ApiError.notAuthorized()
             }
 
-            res.locals.employee = { login: employee.login, password: employee.password }
+            res.locals = { login: employee.login, password: employee.password }
             next()
         } catch (e) {
             next(e)
         }
     }
 
-    async authorization(req: Request, res: EmployeeResponse, next: NextFunction) {
+    async authorization(req: Request, res: IEmployeeAuthResponse, next: NextFunction) {
         try {
-            const { login, password } = res.locals.employee
+            const { login, password } = res.locals
             if (!login || !password) {
                 throw ApiError.badRequest('empty-login-data')
             }
