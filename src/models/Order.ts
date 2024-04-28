@@ -1,83 +1,25 @@
 import { Request, Response } from 'express'
-import { Operation, Order, Service, Status } from '@prisma/client'
-import { IEmployeeData } from './Employee'
-
-export enum EOrderFilter {
-    All = 'ALL',
-    Created = 'CREATED',
-    Process = 'INPROCESS',
-    Done = 'DONE',
-}
-
-export enum EOrderSortByField {
-    ID = 'id',
-    Name = 'name',
-    Surname = 'surname',
-    Tel = 'tel',
-    Email = 'email',
-    Cost = 'cost',
-    Created = 'created',
-}
-
-export type IOrdersGetQuery = {
-    id?: string
-    name?: string
-    surname?: string
-    tel?: string
-    email?: string
-    page?: string
-    perPage?: string
-    from?: string
-    to?: string
-    modelId?: string
-    componentId?: string
-    qualityId?: string
-    apply?: string
-    filter?: EOrderFilter
-    sortBy: EOrderSortByField
-    sortDesc?: boolean
-}
-
-export interface IOrderCheckParams {
-    id: string
-}
-
-export interface IOrderGetQuery {
-    tel?: string
-}
-
-export interface IOrderRead {
-    order: Order & { service: Service; operations: Operation[] }
-    employee: IEmployeeData
-}
-
-export interface IOrderCreate {
-    name: string
-    surname: string
-    tel: string
-    email: string
-    modelId: string
-    componentId: string
-    qualityId: string
-}
-
-export interface IOrderUpdate {
-    name?: string
-    surname?: string
-    tel?: string
-    email?: string
-    modelId?: string
-    componentId?: string
-    qualityId?: string
-    cost?: string
-    status?: Status
-}
+import { Operation, Order, Service } from '@prisma/client'
+import {
+    IEmployeeData,
+    IOrderCheckParams,
+    IOrderCreate,
+    IOrderGetQuery,
+    IOrderUpdate,
+    IOrdersGetQuery,
+} from 'adealer-types'
 
 export type IOrderCreateRequest = Request<{}, {}, IOrderCreate>
 
 export type IOrderCheckRequest = Request<IOrderCheckParams>
 
-export type IOrderCheckResponse = Response<{}, IOrderRead>
+export type IOrderCheckResponse = Response<
+    {},
+    {
+        order: Order & { service: Service; operations: Operation[] }
+        employee: IEmployeeData
+    }
+>
 
 export type IOrderGetRequest = Request<{}, {}, {}, IOrderGetQuery> & IOrderCheckRequest
 

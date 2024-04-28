@@ -3,7 +3,7 @@ import ApiError from '../errors/ApiError'
 import { isDev } from '../constants'
 
 import TranslationController from '../controllers/TranslationController'
-import { API_ERROR_NAME } from '../models'
+import { API_ERROR_NAME } from 'adealer-types'
 
 const errorTranslationController = new TranslationController('errors')
 

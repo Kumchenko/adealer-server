@@ -1,6 +1,6 @@
+import { IEmployeeData } from 'adealer-types'
 import { accessTokenMaxAge, refreshTokenMaxAge } from '../configs'
 import { Jwt } from '../utils'
-import { IEmployeeData } from '../models'
 
 export const signToken = (employee: IEmployeeData) => {
     const accessToken = Jwt.sign(employee, {

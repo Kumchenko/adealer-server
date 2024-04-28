@@ -1,5 +1,5 @@
 import { Prisma } from '@prisma/client'
-import { EOrderFilter } from '../../models'
+import { EOrderFilter } from 'adealer-types'
 
 export const getOrderFilter = (
     filter: EOrderFilter,

@@ -1,4 +1,5 @@
-import { API_ERROR_NAME, IApiErrorConstructor } from '../models'
+import { API_ERROR_NAME } from 'adealer-types'
+import { IApiErrorConstructor } from '../models'
 
 class ApiError extends Error {
     status: number
