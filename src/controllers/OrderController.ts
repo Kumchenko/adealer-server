@@ -3,8 +3,6 @@ import { prisma } from '../lib/prisma'
 import ApiError from '../errors/ApiError'
 import { Prisma, Status } from '@prisma/client'
 import {
-    EOrderFilter,
-    EOrderSortByField,
     IOrderCheckRequest,
     IOrderCheckResponse,
     IOrderCreateRequest,
@@ -14,6 +12,7 @@ import {
     IOrdersGetRequest,
 } from '../models'
 import OrderUtils from '../utils/Order'
+import { EOrderFilter, EOrderSortByField, IOrderRead } from 'adealer-types'
 
 class OrderController {
     async check(req: IOrderCheckRequest, res: IOrderCheckResponse, next: NextFunction) {

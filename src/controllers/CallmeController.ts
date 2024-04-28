@@ -2,8 +2,6 @@ import { Response, Request, NextFunction } from 'express'
 import ApiError from '../errors/ApiError'
 import { prisma } from '../lib/prisma'
 import {
-    ECallMeFilter,
-    ECallMeSortByField,
     ICallMeCheckRequest,
     ICallMeCheckResponse,
     ICallMeCreateRequest,
@@ -11,6 +9,7 @@ import {
     ICallMesGetRequest,
 } from '../models'
 import { Prisma } from '@prisma/client'
+import { ECallMeFilter, ECallMeSortByField } from 'adealer-types'
 
 class CallmeController {
     async check(req: ICallMeCheckRequest, res: ICallMeCheckResponse, next: NextFunction) {

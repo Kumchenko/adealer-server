@@ -1,7 +1,8 @@
 import { NextFunction, Request } from 'express'
 import ApiError from '../errors/ApiError'
-import { IEmployeeResponse, IEmployeeData } from '../models'
+import { IEmployeeResponse } from '../models'
 import { Jwt } from '../utils/Jwt'
+import { IEmployeeData } from 'adealer-types'
 
 export default function AuthMiddleware(req: Request, res: IEmployeeResponse, next: NextFunction) {
     try {

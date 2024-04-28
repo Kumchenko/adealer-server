@@ -1,5 +1,3 @@
-export const API_ERROR_NAME = 'ApiError' as const
-
 export interface IApiErrorConstructor {
     status: number
     message: string

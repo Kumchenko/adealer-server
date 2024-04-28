@@ -9,7 +9,8 @@
         "start": "dotenv -e ./.env.preview ts-node index.ts",
         "start:prisma": "dotenv -e ./.env.preview prisma studio",
         "deploy": "prisma migrate deploy",
-        "pretty": "prettier --write \"./**/*.{js,jsx,ts,tsx,json}\""
+        "pretty": "prettier --write \"./**/*.{js,jsx,ts,tsx,json}\"",
+        "lint": "tsc --noemit"
     },
     "author": "Kyrylo Kumchenko <kirillkumchenko@gmail.com>",
     "license": "ISC",
