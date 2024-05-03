@@ -179,6 +179,7 @@ class OrderController {
 
             res.json(updatedOrder)
         } catch (e) {
+            console.log('CHECK', e)
             next(e)
         }
     }

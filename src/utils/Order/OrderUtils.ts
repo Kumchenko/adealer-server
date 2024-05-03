@@ -3,7 +3,7 @@ import { EOrderFilter } from 'adealer-types'
 
 export const getOrderFilter = (
     filter: EOrderFilter,
-    apply?: string,
+    apply?: boolean,
     from?: Date,
     to?: Date,
 ): Prisma.OperationListRelationFilter | undefined => {
