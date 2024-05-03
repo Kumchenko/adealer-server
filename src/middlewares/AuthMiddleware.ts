@@ -20,11 +20,7 @@ export default function AuthMiddleware(req: Request, res: IEmployeeResponse, nex
         }
 
         // Setting EmployeeData for response (for determining operation issuer)
-        res.locals = {
-            ...res.locals,
-            id: decoded.id,
-            login: decoded.login,
-        }
+        res.locals.employee = { id: decoded.id, login: decoded.login }
 
         // Success - Go to next middleware
         next()

@@ -84,11 +84,23 @@ class CallmeController {
         try {
             const { name, tel, checked } = req.body
 
+            const getCheckedDate = () => {
+                if (checked === null) return checked
+                switch (typeof checked) {
+                    case 'boolean':
+                        return new Date()
+                    case 'string':
+                        return new Date(checked)
+                    default:
+                        return undefined
+                }
+            }
+
             const updatedCallme = await prisma.callMe.update({
                 data: {
                     name,
                     tel,
-                    checked: checked ? new Date() : null,
+                    checked: getCheckedDate(),
                 },
                 where: {
                     id: res.locals.id,

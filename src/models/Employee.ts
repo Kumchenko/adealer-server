@@ -7,4 +7,4 @@ export type IEmployeeLoginRequest = Request<{}, {}, IEmployeeLogin>
 
 export type IEmployeeAuthResponse = Response<{}, IEmployeeLogin>
 
-export type IEmployeeResponse = Response<{}, IEmployeeData>
+export type IEmployeeResponse = Response<{}, { employee: IEmployeeData }>
