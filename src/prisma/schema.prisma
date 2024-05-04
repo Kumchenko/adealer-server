@@ -53,8 +53,12 @@ model Service {
 model Employee {
     id         Int         @id @default(autoincrement())
     login      String      @unique
+    role       Role        @default(EMPLOYEE)
+    attempts   Int         @default(3)
+    restricted Boolean     @default(false)
     password   String
     operations Operation[]
+    actions    Action[]
 
     @@map("employees")
 }
@@ -90,10 +94,26 @@ model CallMe {
     @@map("calls")
 }
 
+model Action {
+    id       Int      @id @default(autoincrement())
+    date     DateTime @default(now())
+    employee Employee @relation(fields: [login], references: [login])
+    login    String
+    method   String
+    action   String
+
+    @@map("actions")
+}
+
 enum Status {
     DIAGNOSED
     INPROCESS
     DONE
     ISSUED
     RETURNED
+}
+
+enum Role {
+    EMPLOYEE
+    ADMIN
 }

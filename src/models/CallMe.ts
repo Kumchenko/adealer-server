@@ -5,7 +5,7 @@ import { ICallMeCheckParams, ICallMeCreate, ICallMeUpdate, ICallMesGetQuery } fr
 
 export type ICallMeCheckRequest = Request<ICallMeCheckParams>
 
-export type ICallMeCheckResponse = Response<{}, CallMe>
+export type ICallMeCheckResponse = Response<{}, { call: CallMe }>
 
 export type ICallMeUpdateRequest = Request<ICallMeCheckParams, {}, ICallMeUpdate>
 
