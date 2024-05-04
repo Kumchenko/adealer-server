@@ -23,7 +23,7 @@ class CallmeController {
             })
 
             if (callme) {
-                res.locals = callme
+                res.locals.call = callme
                 next()
             } else {
                 throw ApiError.badRequest('callme-not-found')
@@ -66,7 +66,7 @@ class CallmeController {
         try {
             const deletedCallme = await prisma.callMe.delete({
                 where: {
-                    id: res.locals.id,
+                    id: res.locals.call.id,
                 },
             })
 
@@ -103,7 +103,7 @@ class CallmeController {
                     checked: getCheckedDate(),
                 },
                 where: {
-                    id: res.locals.id,
+                    id: res.locals.call.id,
                 },
             })
 

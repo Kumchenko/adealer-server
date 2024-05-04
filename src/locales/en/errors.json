@@ -15,5 +15,8 @@
     "tel-is-undefined": "Received empty phone number",
     "tel-is-wrong": "The given tel is wrong",
     "not-supported": "This path is not supported",
-    "not-authorized": "You are not authorized to make this Request"
+    "not-authorized": "You are not authorized to make this Request",
+    "auth-out-of-date": "Authorization information is out of date",
+    "insufficient-access": "Insufficient access rights",
+    "employee-blocked": "Employee has been blocked, please contact with Admin"
 }
