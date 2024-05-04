@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import CallMeController from '../controllers/CallMeController'
+import CallMeController from '../controllers/CallController'
 
 const router = Router()
 const authRouter = Router()
