@@ -1,5 +1,6 @@
 import { Prisma } from '@prisma/client'
 import { EOrderFilter } from 'adealer-types'
+import { IDatePeriod } from '../../models'
 
 export const getOrderFilter = (
     filter: EOrderFilter,
@@ -47,3 +48,13 @@ export const getOrderFilter = (
         }
     }
 }
+
+export const getStatsQueries = (periods: IDatePeriod[]): Prisma.OrderCountArgs[] =>
+    periods.map(([from, to]) => ({
+        where: {
+            created: {
+                lte: to,
+                gte: from,
+            },
+        },
+    }))

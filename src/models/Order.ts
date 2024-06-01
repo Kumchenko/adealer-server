@@ -7,6 +7,7 @@ import {
     IOrderGetQuery,
     IOrderUpdate,
     IOrdersGetQuery,
+    IOrdersGetStatsQuery,
 } from 'adealer-types'
 
 export type IOrderCreateRequest = Request<{}, {}, IOrderCreate>
@@ -28,3 +29,5 @@ export type IOrderDeleteRequest = IOrderCheckRequest
 export type IOrderUpdateRequest = Request<{}, {}, IOrderUpdate>
 
 export type IOrdersGetRequest = Request<{}, {}, {}, IOrdersGetQuery>
+
+export type IOrdersGetStatsRequest = Request<{}, {}, {}, IOrdersGetStatsQuery>

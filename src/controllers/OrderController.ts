@@ -10,9 +10,11 @@ import {
     IOrderGetRequest,
     IOrderUpdateRequest,
     IOrdersGetRequest,
+    IOrdersGetStatsRequest,
 } from '../models'
 import OrderUtils from '../utils/Order'
-import { EOrderFilter, EOrderSortByField, IOrderRead } from 'adealer-types'
+import { EOrderFilter, EOrderSortByField, ETimeframe, IOrderRead } from 'adealer-types'
+import DateUtils from '../utils/Date'
 
 class OrderController {
     async check(req: IOrderCheckRequest, res: IOrderCheckResponse, next: NextFunction) {
@@ -284,8 +286,14 @@ class OrderController {
         }
     }
 
-    async getStats(req: Request, res: Response, next: NextFunction) {
+    async getStats(req: IOrdersGetStatsRequest, res: Response, next: NextFunction) {
         try {
+            const { timeframe = ETimeframe.WEEK, to: toString } = req.query
+
+            const to = toString ? new Date(toString) : new Date()
+            const datePeriods = DateUtils.getDatePeriods(timeframe, to)
+            const periodQueries = OrderUtils.getStatsQueries(datePeriods)
+
             const createdQuery: Prisma.OrderCountArgs = {
                 where: {
                     operations: {
@@ -330,11 +338,12 @@ class OrderController {
                     ? services.reduce((max, cur) => (cur._count.orders > max._count.orders ? cur : max))
                     : null
 
-            const [all, created, processing, done] = await prisma.$transaction([
+            const [all, created, processing, done, ...periods] = await prisma.$transaction([
                 prisma.order.count(),
                 prisma.order.count(createdQuery),
                 prisma.order.count(processQuery),
                 prisma.order.count(doneQuery),
+                ...periodQueries.map(q => prisma.order.count(q)),
             ])
 
             res.json({
@@ -344,6 +353,10 @@ class OrderController {
                 done,
                 model: popularService?.modelId || 'No services',
                 component: popularService?.componentId || 'No services',
+                counts: periods.map((item, i) => ({
+                    date: datePeriods[i][0],
+                    orders: item,
+                })),
             })
         } catch (e) {
             next(e)

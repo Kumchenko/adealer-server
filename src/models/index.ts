@@ -9,3 +9,5 @@ export * from './CallMe'
 export * from './Employee'
 
 export * from './Service'
+
+export * from './Date'
