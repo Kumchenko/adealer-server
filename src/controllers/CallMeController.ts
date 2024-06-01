@@ -7,9 +7,12 @@ import {
     ICallMeCreateRequest,
     ICallMeUpdateRequest,
     ICallMesGetRequest,
+    ICallMesGetStatsRequest,
 } from '../models'
 import { Prisma } from '@prisma/client'
-import { ECallMeFilter, ECallMeSortByField } from 'adealer-types'
+import { ECallMeFilter, ECallMeSortByField, ETimeframe } from 'adealer-types'
+import DateUtils from '../utils/Date'
+import CallMeUtils from '../utils/CallMe'
 
 class CallmeController {
     async check(req: ICallMeCheckRequest, res: ICallMeCheckResponse, next: NextFunction) {
@@ -56,7 +59,7 @@ class CallmeController {
 
     async get(req: ICallMeCheckRequest, res: ICallMeCheckResponse, next: NextFunction) {
         try {
-            res.json(res.locals)
+            res.json(res.locals.call)
         } catch (e) {
             next(e)
         }
@@ -186,8 +189,14 @@ class CallmeController {
         }
     }
 
-    async getStats(req: Request, res: Response, next: NextFunction) {
+    async getStats(req: ICallMesGetStatsRequest, res: Response, next: NextFunction) {
         try {
+            const { timeframe = ETimeframe.WEEK, to: toString } = req.query
+
+            const to = toString ? new Date(toString) : new Date()
+            const datePeriods = DateUtils.getDatePeriods(timeframe, to)
+            const periodQueries = CallMeUtils.getStatsQueries(datePeriods)
+
             const createdQuery: Prisma.CallMeCountArgs = {
                 where: {
                     checked: null,
@@ -202,16 +211,21 @@ class CallmeController {
                 },
             }
 
-            const [all, created, checked] = await prisma.$transaction([
+            const [all, created, checked, ...periods] = await prisma.$transaction([
                 prisma.callMe.count(),
                 prisma.callMe.count(createdQuery),
                 prisma.callMe.count(checkedQuery),
+                ...periodQueries.map(q => prisma.callMe.count(q)),
             ])
 
             res.json({
                 all,
                 created,
                 checked,
+                counts: periods.map((item, i) => ({
+                    date: datePeriods[i][0],
+                    calls: item,
+                })),
             })
         } catch (e) {
             next(e)
