@@ -8,7 +8,7 @@
         "dev:prisma": "dotenv -e ./.env prisma studio",
         "start": "dotenv -e ./.env.preview tsx ./index.ts",
         "start:prisma": "dotenv -e ./.env.preview prisma studio",
-        "deploy": "prisma migrate deploy",
+        "deploy:prisma": "prisma migrate deploy",
         "pretty": "prettier --write \"./**/*.{js,jsx,ts,tsx,json}\"",
         "lint": "tsc --noemit"
     },
